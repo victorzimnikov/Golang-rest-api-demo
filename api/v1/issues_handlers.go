@@ -4,25 +4,25 @@ import "github.com/gofiber/fiber/v3"
 
 func GetIssue(ctx fiber.Ctx) error {
 	// GetIssue
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func UpdateIssue(ctx fiber.Ctx) error {
 	// UpdateIssue
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func DeleteIssue(ctx fiber.Ctx) error {
 	// DeleteIssue
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func CreateIssueComment(ctx fiber.Ctx) error {
 	// CreateIssueComment
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func GetIssueComments(ctx fiber.Ctx) error {
 	// GetIssueComments
-	return nil
+	return ctx.SendStatus(501)
 }

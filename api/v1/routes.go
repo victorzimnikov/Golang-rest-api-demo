@@ -2,11 +2,10 @@ package v1
 
 import (
 	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/middleware/logger"
 )
 
 func SetupV1Routes(api fiber.Router) {
-	router := api.Group("/v1", logger.New())
+	router := api.Group("/v1")
 
 	// Projects
 	router.Get("/projects", GetProjectsList)

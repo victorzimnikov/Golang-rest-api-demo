@@ -4,15 +4,15 @@ import "github.com/gofiber/fiber/v3"
 
 func GetComment(ctx fiber.Ctx) error {
 	// GetComment
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func UpdateComment(ctx fiber.Ctx) error {
 	// UpdateComment
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func DeleteComment(ctx fiber.Ctx) error {
 	// DeleteComment
-	return nil
+	return ctx.SendStatus(501)
 }

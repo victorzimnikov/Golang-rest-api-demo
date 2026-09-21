@@ -4,35 +4,35 @@ import "github.com/gofiber/fiber/v3"
 
 func GetProjectsList(ctx fiber.Ctx) error {
 	// GetProjectsList
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func CreateProject(ctx fiber.Ctx) error {
 	// CreateProject
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func GetProject(ctx fiber.Ctx) error {
 	// GetProject
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func UpdateProject(ctx fiber.Ctx) error {
 	// UpdateProject
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func DeleteProject(ctx fiber.Ctx) error {
 	// DeleteProject
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func CreateProjectIssue(ctx fiber.Ctx) error {
 	// CreateProjectIssue
-	return nil
+	return ctx.SendStatus(501)
 }
 
 func GetProjectIssues(ctx fiber.Ctx) error {
 	// GetProjectIssues
-	return nil
+	return ctx.SendStatus(501)
 }
