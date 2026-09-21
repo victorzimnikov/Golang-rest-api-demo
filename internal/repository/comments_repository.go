@@ -1,11 +1,13 @@
 package repository
 
+import "github.com/victorzimnikov/Golang-rest-api-demo/internal/database/db"
+
 type CommentsRepository struct {
-	db DBTX
+	queries *db.Queries
 }
 
-func NewCommentsRepository(db DBTX) *CommentsRepository {
+func NewCommentsRepository(queries *db.Queries) *CommentsRepository {
 	return &CommentsRepository{
-		db: db,
+		queries: queries,
 	}
 }

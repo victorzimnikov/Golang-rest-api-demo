@@ -5,6 +5,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/victorzimnikov/Golang-rest-api-demo/internal/database/db"
 )
 
 type DBTX interface {
@@ -25,9 +26,9 @@ type Repositories struct {
 	ProjectRepository  *ProjectRepository
 }
 
-func NewRepositories(db DBTX) *Repositories {
-	commentsRepository := NewCommentsRepository(db)
-	projectRepository := NewProjectRepository(db)
+func NewRepositories(queries *db.Queries) *Repositories {
+	commentsRepository := NewCommentsRepository(queries)
+	projectRepository := NewProjectRepository(queries)
 
 	return &Repositories{
 		CommentsRepository: commentsRepository,

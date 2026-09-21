@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/config"
+	"github.com/victorzimnikov/Golang-rest-api-demo/internal/database/db"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/http"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/repository"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/service"
@@ -44,7 +45,9 @@ func run() error {
 		return fmt.Errorf("ping PostgreSQL: %w", err)
 	}
 
-	repositories := repository.NewRepositories(pool)
+	queries := db.New(pool)
+
+	repositories := repository.NewRepositories(queries)
 	services := service.NewServices(repositories)
 
 	return startServer(config.ServerPort, services)
