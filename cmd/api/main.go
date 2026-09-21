@@ -8,8 +8,8 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/victorzimnikov/Golang-rest-api-demo/api"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/config"
+	"github.com/victorzimnikov/Golang-rest-api-demo/internal/http"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/repository"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/service"
 )
@@ -31,14 +31,6 @@ func run() error {
 		return err
 	}
 
-	app := fiber.New()
-
-	app.Hooks().OnListen(func(data fiber.ListenData) error {
-		log.Printf("server started on %s:%s", data.Host, data.Port)
-
-		return nil
-	})
-
 	connectCtx, cancel := context.WithTimeout(context.Background(), databaseConnectTimeout)
 	defer cancel()
 
@@ -55,9 +47,21 @@ func run() error {
 	repositories := repository.NewRepositories(pool)
 	services := service.NewServices(repositories)
 
-	api.SetupRoutes(app, services)
+	return startServer(config.ServerPort, services)
+}
 
-	if err := app.Listen(fmt.Sprintf(":%s", config.ServerPort)); err != nil {
+func startServer(port string, services *service.Services) error {
+	app := fiber.New()
+
+	app.Hooks().OnListen(func(data fiber.ListenData) error {
+		log.Printf("server started on %s:%s", data.Host, data.Port)
+
+		return nil
+	})
+
+	http.SetupRoutes(app, services)
+
+	if err := app.Listen(fmt.Sprintf(":%s", port)); err != nil {
 		return fmt.Errorf("listen HTTP server: %w", err)
 	}
 

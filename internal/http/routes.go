@@ -1,9 +1,9 @@
-package api
+package http
 
 import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/logger"
-	v1 "github.com/victorzimnikov/Golang-rest-api-demo/api/v1"
+	v1 "github.com/victorzimnikov/Golang-rest-api-demo/internal/http/v1"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/service"
 )
 
