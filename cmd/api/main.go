@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/victorzimnikov/Golang-rest-api-demo/api"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/config"
 )
 
@@ -15,6 +16,8 @@ func main() {
 	}
 
 	app := fiber.New()
+
+	api.SetupRoutes(app)
 
 	log.Printf("server started on %s port", config.ServerPort)
 
