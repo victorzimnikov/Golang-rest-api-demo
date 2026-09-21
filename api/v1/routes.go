@@ -2,9 +2,10 @@ package v1
 
 import (
 	"github.com/gofiber/fiber/v3"
+	"github.com/victorzimnikov/Golang-rest-api-demo/internal/service"
 )
 
-func SetupV1Routes(api fiber.Router) {
+func SetupV1Routes(api fiber.Router, services *service.Services) {
 	router := api.Group("/v1")
 
 	// Projects
@@ -24,7 +25,9 @@ func SetupV1Routes(api fiber.Router) {
 	router.Get("/issues/:issueId/comments", GetIssueComments)
 
 	// Comments
-	router.Get("/comments/:commentId", GetComment)
-	router.Patch("/comments/:commentId", UpdateComment)
-	router.Delete("/comments/:commentId", DeleteComment)
+	commentsHandlers := NewCommentsHandler(services.CommentsService)
+
+	router.Get("/comments/:commentId", commentsHandlers.GetComment)
+	router.Patch("/comments/:commentId", commentsHandlers.UpdateComment)
+	router.Delete("/comments/:commentId", commentsHandlers.DeleteComment)
 }

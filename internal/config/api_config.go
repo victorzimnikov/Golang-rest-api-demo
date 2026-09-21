@@ -1,7 +1,8 @@
 package config
 
 type ApiConfig struct {
-	ServerPort string
+	ServerPort  string
+	DatabaseURL string
 }
 
 func LoadApiConfig() (ApiConfig, error) {
@@ -10,7 +11,13 @@ func LoadApiConfig() (ApiConfig, error) {
 		return ApiConfig{}, err
 	}
 
+	databaseURL, err := requiredEnv("DATABASE_URL")
+	if err != nil {
+		return ApiConfig{}, err
+	}
+
 	return ApiConfig{
-		ServerPort: serverPort,
+		ServerPort:  serverPort,
+		DatabaseURL: databaseURL,
 	}, nil
 }
