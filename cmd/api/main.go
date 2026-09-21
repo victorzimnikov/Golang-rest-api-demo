@@ -18,5 +18,7 @@ func main() {
 
 	log.Printf("server started on %s port", config.ServerPort)
 
-	app.Listen(fmt.Sprintf(":%s", config.ServerPort))
+	if err := app.Listen(fmt.Sprintf(":%s", config.ServerPort)); err != nil {
+		log.Fatal(err)
+	}
 }
