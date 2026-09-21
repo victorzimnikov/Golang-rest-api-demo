@@ -38,12 +38,20 @@ func (h *ProjectHandler) CreateProject(ctx fiber.Ctx) error {
 		return err
 	}
 
-	_, err = h.projectService.CreateProject(ctx.Context(), projectBody)
-	if err != nil {
-		return err
+	project, responseErr := h.projectService.CreateProject(ctx.Context(), projectBody)
+	if responseErr != nil {
+		return responseErr
 	}
 
-	return ctx.SendStatus(fiber.StatusCreated)
+	ctx.Status(fiber.StatusCreated)
+
+	return ctx.JSON(CreateProjectResponse{
+		ID:          project.ID,
+		Name:        project.Name,
+		Description: project.Description,
+		CreatedAt:   project.CreatedAt,
+		UpdatedAt:   project.UpdatedAt,
+	})
 }
 
 func (h *ProjectHandler) GetProject(ctx fiber.Ctx) error {

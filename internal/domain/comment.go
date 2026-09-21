@@ -12,7 +12,7 @@ type CommentID int64
 type IssueID int64
 
 type Comment struct {
-	Id        CommentID
+	ID        CommentID
 	IssueID   IssueID
 	Text      string
 	CreatedAt time.Time
