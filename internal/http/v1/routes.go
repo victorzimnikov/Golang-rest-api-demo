@@ -18,11 +18,13 @@ func SetupV1Routes(api fiber.Router, services *service.Services) {
 	router.Get("/projects/:projectId/issues", GetProjectIssues)
 
 	// Issues
-	router.Get("/issues/:issueId", GetIssue)
-	router.Patch("/issues/:issueId", UpdateIssue)
-	router.Delete("/issues/:issueId", DeleteIssue)
-	router.Post("/issues/:issueId/comments", CreateIssueComment)
-	router.Get("/issues/:issueId/comments", GetIssueComments)
+	issueHandler := NewIssueHandler(services.CommentsService)
+
+	router.Get("/issues/:issueId", issueHandler.GetIssue)
+	router.Patch("/issues/:issueId", issueHandler.UpdateIssue)
+	router.Delete("/issues/:issueId", issueHandler.DeleteIssue)
+	router.Post("/issues/:issueId/comments", issueHandler.CreateIssueComment)
+	router.Get("/issues/:issueId/comments", issueHandler.GetIssueComments)
 
 	// Comments
 	commentsHandlers := NewCommentsHandler(services.CommentsService)
