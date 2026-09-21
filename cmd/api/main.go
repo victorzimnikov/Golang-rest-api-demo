@@ -17,9 +17,13 @@ func main() {
 
 	app := fiber.New()
 
-	api.SetupRoutes(app)
+	app.Hooks().OnListen(func(data fiber.ListenData) error {
+		log.Printf("server started on %s:%s", data.Host, data.Port)
 
-	log.Printf("server started on %s port", config.ServerPort)
+		return nil
+	})
+
+	api.SetupRoutes(app)
 
 	if err := app.Listen(fmt.Sprintf(":%s", config.ServerPort)); err != nil {
 		log.Fatal(err)
