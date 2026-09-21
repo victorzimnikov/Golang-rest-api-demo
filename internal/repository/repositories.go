@@ -22,12 +22,15 @@ type DBTX interface {
 
 type Repositories struct {
 	CommentsRepository *CommentsRepository
+	ProjectRepository  *ProjectRepository
 }
 
 func NewRepositories(db DBTX) *Repositories {
 	commentsRepository := NewCommentsRepository(db)
+	projectRepository := NewProjectRepository(db)
 
 	return &Repositories{
 		CommentsRepository: commentsRepository,
+		ProjectRepository:  projectRepository,
 	}
 }
