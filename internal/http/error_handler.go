@@ -22,10 +22,15 @@ func ErrorHandler(ctx fiber.Ctx, err error) error {
 	}
 
 	switch {
-	case errors.Is(err, domain.ErrProjectNameRequired):
-	case errors.Is(err, domain.ErrCommentTextRequired):
-	case errors.Is(err, domain.ErrProjectNameTooLong):
+	case errors.Is(err, domain.ErrProjectNameRequired),
+		errors.Is(err, domain.ErrCommentTextRequired),
+		errors.Is(err, domain.ErrProjectNameTooLong):
 		return ctx.Status(fiber.StatusBadRequest).JSON(errorResponse{
+			Error: err.Error(),
+		})
+
+	case errors.Is(err, domain.ErrProjectNameAlreadyExists):
+		return ctx.Status(fiber.StatusConflict).JSON(errorResponse{
 			Error: err.Error(),
 		})
 

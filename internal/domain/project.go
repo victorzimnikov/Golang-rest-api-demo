@@ -12,6 +12,7 @@ const MaxProjectNameLength = 100
 var ErrProjectNotFound = errors.New("project not found")
 var ErrProjectNameRequired = errors.New("project name is required")
 var ErrProjectNameTooLong = errors.New("project name is too long")
+var ErrProjectNameAlreadyExists = errors.New("project name already exists")
 
 type ProjectID int64
 

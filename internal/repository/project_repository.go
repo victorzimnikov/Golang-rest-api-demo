@@ -6,9 +6,13 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/database/db"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
 )
+
+var pgUniqueViolationCode = "23505"
+var pgProjectNameUniqueViolationConstraintName = "project_name_unique_idx"
 
 type ProjectRepository struct {
 	queries *db.Queries
@@ -27,6 +31,13 @@ func (r *ProjectRepository) SaveProject(ctx context.Context, project *domain.Pro
 		CreatedAt:   project.CreatedAt,
 		UpdatedAt:   project.UpdatedAt,
 	})
+
+	var pgError *pgconn.PgError
+
+	if errors.As(err, &pgError) && pgError.Code == pgUniqueViolationCode && pgError.ConstraintName == pgProjectNameUniqueViolationConstraintName {
+		return nil, domain.ErrProjectNameAlreadyExists
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("create project: %w", err)
 	}
