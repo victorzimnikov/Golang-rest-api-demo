@@ -74,6 +74,21 @@ func startServer(port string, services *service.Services) error {
 			return ctx.Status(fiber.StatusBadRequest).JSON(ErrorType{
 				Error: domain.ErrProjectNameRequired.Error(),
 			})
+
+		case errors.Is(err, domain.ErrCommentTextRequired):
+			return ctx.Status(fiber.StatusBadRequest).JSON(ErrorType{
+				Error: domain.ErrCommentTextRequired.Error(),
+			})
+
+		case errors.Is(err, domain.ErrProjectNameTooLong):
+			return ctx.Status(fiber.StatusBadRequest).JSON(ErrorType{
+				Error: domain.ErrProjectNameTooLong.Error(),
+			})
+
+		case errors.Is(err, domain.ErrProjectNotFound):
+			return ctx.Status(fiber.StatusNotFound).JSON(ErrorType{
+				Error: domain.ErrProjectNotFound.Error(),
+			})
 		}
 
 		log.Printf("internal server error: %v", err)

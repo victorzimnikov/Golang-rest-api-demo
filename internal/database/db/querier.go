@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
+	GetProject(ctx context.Context, id int64) (Project, error)
 }
 
 var _ Querier = (*Queries)(nil)

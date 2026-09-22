@@ -20,3 +20,7 @@ func NewProjectService(projectRepository *repository.ProjectRepository) *Project
 func (s *ProjectService) CreateProject(ctx context.Context, data *domain.Project) (*domain.Project, error) {
 	return s.ProjectRepository.SaveProject(ctx, data)
 }
+
+func (s *ProjectService) GetProjectByID(ctx context.Context, id domain.ProjectID) (*domain.Project, error) {
+	return s.ProjectRepository.GetProjectByID(ctx, id)
+}

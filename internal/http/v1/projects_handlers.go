@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -55,8 +56,29 @@ func (h *ProjectHandler) CreateProject(ctx fiber.Ctx) error {
 }
 
 func (h *ProjectHandler) GetProject(ctx fiber.Ctx) error {
-	// GetProject
-	return ctx.SendStatus(501)
+	projectIDRaw := ctx.Params("projectId")
+	projectID, err := strconv.ParseInt(projectIDRaw, 10, 64)
+	if err != nil || projectID <= 0 {
+		return fiber.NewError(
+			fiber.StatusBadRequest,
+			"invalid project id",
+		)
+	}
+
+	project, responseErr := h.projectService.GetProjectByID(ctx.Context(), domain.ProjectID(projectID))
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(GetProjectResponse{
+		ID:          project.ID,
+		Name:        project.Name,
+		Description: project.Description,
+		CreatedAt:   project.CreatedAt,
+		UpdatedAt:   project.UpdatedAt,
+	})
 }
 
 func (h *ProjectHandler) UpdateProject(ctx fiber.Ctx) error {
