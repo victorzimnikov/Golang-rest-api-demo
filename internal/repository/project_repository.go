@@ -47,7 +47,7 @@ func (r *ProjectRepository) GetProjectByID(ctx context.Context, id domain.Projec
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("get project for ID:%d: %w", id, err)
+		return nil, fmt.Errorf("get project by ID:%d: %w", id, err)
 	}
 
 	return &domain.Project{
@@ -81,4 +81,17 @@ func (r *ProjectRepository) GetProjectsList(ctx context.Context, params db.GetPr
 	}
 
 	return total, list, nil
+}
+
+func (r *ProjectRepository) DeleteProject(ctx context.Context, id domain.ProjectID) error {
+	_, err := r.queries.DeleteProject(ctx, int64(id))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.ErrProjectNotFound
+	}
+
+	if err != nil {
+		return fmt.Errorf("delete project by ID:%d: %w", id, err)
+	}
+
+	return nil
 }

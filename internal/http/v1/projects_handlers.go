@@ -126,8 +126,25 @@ func (h *ProjectHandler) UpdateProject(ctx fiber.Ctx) error {
 }
 
 func (h *ProjectHandler) DeleteProject(ctx fiber.Ctx) error {
-	// DeleteProject
-	return ctx.SendStatus(501)
+	projectIDRaw := ctx.Params("projectId")
+	projectID, err := strconv.ParseInt(projectIDRaw, 10, 64)
+	if err != nil || projectID <= 0 {
+		return fiber.NewError(
+			fiber.StatusBadRequest,
+			"invalid project id",
+		)
+	}
+
+	responseErr := h.projectService.DeleteProject(ctx.Context(), domain.ProjectID(projectID))
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(SuccessResponse[*domain.Project]{
+		Data: nil,
+	})
 }
 
 func (h *ProjectHandler) CreateProjectIssue(ctx fiber.Ctx) error {

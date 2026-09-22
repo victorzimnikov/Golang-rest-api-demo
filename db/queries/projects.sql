@@ -44,3 +44,8 @@ WHERE (
   name ILIKE '%' || sqlc.arg(q)::text || '%'
   OR description ILIKE '%' || sqlc.arg(q)::text || '%'
 );
+
+-- name: DeleteProject :one
+DELETE FROM projects
+WHERE id = $1
+RETURNING id;

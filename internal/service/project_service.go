@@ -33,10 +33,13 @@ func (s *ProjectService) GetProjectByID(ctx context.Context, id domain.ProjectID
 }
 
 func (s *ProjectService) GetProjectsList(ctx context.Context, query GetProjectsListQuery) (int64, []domain.Project, error) {
-
 	return s.ProjectRepository.GetProjectsList(ctx, db.GetProjectsListParams{
 		Q:          query.Q,
 		Skip:       int64(query.Skip),
 		LimitCount: int32(query.Limit),
 	})
+}
+
+func (s *ProjectService) DeleteProject(ctx context.Context, id domain.ProjectID) error {
+	return s.ProjectRepository.DeleteProject(ctx, id)
 }
