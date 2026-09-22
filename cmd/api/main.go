@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -11,7 +10,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/config"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/database/db"
-	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/http"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/repository"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/service"
@@ -55,51 +53,10 @@ func run() error {
 	return startServer(config.ServerPort, services)
 }
 
-type ErrorType struct {
-	Error string `json:"error"`
-}
-
 func startServer(port string, services *service.Services) error {
-	errorHandler := func(ctx fiber.Ctx, err error) error {
-		var fiberErr *fiber.Error
-
-		if errors.As(err, &fiberErr) {
-			return ctx.Status(fiberErr.Code).JSON(ErrorType{
-				Error: fiberErr.Message,
-			})
-		}
-
-		switch {
-		case errors.Is(err, domain.ErrProjectNameRequired):
-			return ctx.Status(fiber.StatusBadRequest).JSON(ErrorType{
-				Error: domain.ErrProjectNameRequired.Error(),
-			})
-
-		case errors.Is(err, domain.ErrCommentTextRequired):
-			return ctx.Status(fiber.StatusBadRequest).JSON(ErrorType{
-				Error: domain.ErrCommentTextRequired.Error(),
-			})
-
-		case errors.Is(err, domain.ErrProjectNameTooLong):
-			return ctx.Status(fiber.StatusBadRequest).JSON(ErrorType{
-				Error: domain.ErrProjectNameTooLong.Error(),
-			})
-
-		case errors.Is(err, domain.ErrProjectNotFound):
-			return ctx.Status(fiber.StatusNotFound).JSON(ErrorType{
-				Error: domain.ErrProjectNotFound.Error(),
-			})
-		}
-
-		log.Printf("internal server error: %v", err)
-
-		return ctx.Status(fiber.StatusInternalServerError).JSON(ErrorType{
-			Error: "internal server error",
-		})
-	}
 
 	app := fiber.New(fiber.Config{
-		ErrorHandler: errorHandler,
+		ErrorHandler: http.ErrorHandler,
 	})
 
 	app.Hooks().OnListen(func(data fiber.ListenData) error {

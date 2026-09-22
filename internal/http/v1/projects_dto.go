@@ -26,3 +26,9 @@ type GetProjectResponse struct {
 	CreatedAt   time.Time        `json:"createdAt"`
 	UpdatedAt   time.Time        `json:"updatedAt"`
 }
+
+type GetProjectListRequest struct {
+	Skip  string
+	Limit string
+	Q     string
+}
