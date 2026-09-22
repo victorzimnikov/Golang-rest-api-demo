@@ -11,8 +11,10 @@ import (
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
 )
 
-var pgUniqueViolationCode = "23505"
-var pgProjectNameUniqueViolationConstraintName = "project_name_unique_idx"
+const (
+	pgUniqueViolationCode                      = "23505"
+	pgProjectNameUniqueViolationConstraintName = "project_name_unique_idx"
+)
 
 type ProjectRepository struct {
 	queries *db.Queries
