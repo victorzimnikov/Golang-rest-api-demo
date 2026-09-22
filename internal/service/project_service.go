@@ -18,10 +18,5 @@ func NewProjectService(projectRepository *repository.ProjectRepository) *Project
 }
 
 func (s *ProjectService) CreateProject(ctx context.Context, data *domain.Project) (*domain.Project, error) {
-	project, err := s.ProjectRepository.SaveProject(ctx, data)
-	if err != nil {
-		return nil, err
-	}
-
-	return project, nil
+	return s.ProjectRepository.SaveProject(ctx, data)
 }
