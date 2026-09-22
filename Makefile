@@ -11,7 +11,7 @@ fmt:
 	go fmt ./...
 
 migrate_up:
-	set -a && . ./.env && set +a && go tool goose -dir db/migrations postgres "$DATABASE_URL" up
+	set -a && . ./.env && set +a && go tool goose -dir db/migrations postgres "$$DATABASE_URL" up
 
 sql_generate:
 	go tool sqlc generate
