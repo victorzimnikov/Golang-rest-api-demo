@@ -46,12 +46,14 @@ func (h *ProjectHandler) CreateProject(ctx fiber.Ctx) error {
 
 	ctx.Status(fiber.StatusCreated)
 
-	return ctx.JSON(CreateProjectResponse{
-		ID:          project.ID,
-		Name:        project.Name,
-		Description: project.Description,
-		CreatedAt:   project.CreatedAt,
-		UpdatedAt:   project.UpdatedAt,
+	return ctx.JSON(SuccessResponse[CreateProjectResponse]{
+		Data: CreateProjectResponse{
+			ID:          project.ID,
+			Name:        project.Name,
+			Description: project.Description,
+			CreatedAt:   project.CreatedAt,
+			UpdatedAt:   project.UpdatedAt,
+		},
 	})
 }
 
@@ -72,12 +74,14 @@ func (h *ProjectHandler) GetProject(ctx fiber.Ctx) error {
 
 	ctx.Status(fiber.StatusOK)
 
-	return ctx.JSON(GetProjectResponse{
-		ID:          project.ID,
-		Name:        project.Name,
-		Description: project.Description,
-		CreatedAt:   project.CreatedAt,
-		UpdatedAt:   project.UpdatedAt,
+	return ctx.JSON(SuccessResponse[GetProjectResponse]{
+		Data: GetProjectResponse{
+			ID:          project.ID,
+			Name:        project.Name,
+			Description: project.Description,
+			CreatedAt:   project.CreatedAt,
+			UpdatedAt:   project.UpdatedAt,
+		},
 	})
 }
 
