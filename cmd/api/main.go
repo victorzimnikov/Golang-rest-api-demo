@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -17,6 +20,10 @@ import (
 
 const (
 	databaseConnectTimeout = 5 * time.Second
+	apiReadTimeout         = 5 * time.Second
+	apiWriteTimeout        = 5 * time.Second
+	apiIdleTimeout         = 30 * time.Second
+	apiShutdownTimeout     = 10 * time.Second
 )
 
 func main() {
@@ -32,8 +39,11 @@ func run() error {
 		return err
 	}
 
-	connectCtx, cancel := context.WithTimeout(context.Background(), databaseConnectTimeout)
-	defer cancel()
+	notifyContext, stopSignal := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stopSignal()
+
+	connectCtx, cancelConnect := context.WithTimeout(notifyContext, databaseConnectTimeout)
+	defer cancelConnect()
 
 	pool, err := pgxpool.New(connectCtx, config.DatabaseURL)
 	if err != nil {
@@ -50,13 +60,16 @@ func run() error {
 	repositories := repository.NewRepositories(queries)
 	services := service.NewServices(repositories)
 
-	return startServer(config.ServerPort, services)
+	return startServer(notifyContext, config.ServerPort, services)
 }
 
-func startServer(port string, services *service.Services) error {
+func startServer(ctx context.Context, port string, services *service.Services) error {
 
 	app := fiber.New(fiber.Config{
 		ErrorHandler: http.ErrorHandler,
+		ReadTimeout:  apiReadTimeout,
+		WriteTimeout: apiWriteTimeout,
+		IdleTimeout:  apiIdleTimeout,
 	})
 
 	app.Hooks().OnListen(func(data fiber.ListenData) error {
@@ -67,7 +80,10 @@ func startServer(port string, services *service.Services) error {
 
 	http.SetupRoutes(app, services)
 
-	if err := app.Listen(fmt.Sprintf(":%s", port)); err != nil {
+	if err := app.Listen(fmt.Sprintf(":%s", port), fiber.ListenConfig{
+		GracefulContext: ctx,
+		ShutdownTimeout: apiShutdownTimeout,
+	}); err != nil {
 		return fmt.Errorf("listen HTTP server: %w", err)
 	}
 
