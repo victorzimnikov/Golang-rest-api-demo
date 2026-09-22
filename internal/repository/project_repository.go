@@ -58,3 +58,27 @@ func (r *ProjectRepository) GetProjectByID(ctx context.Context, id domain.Projec
 		UpdatedAt:   project.UpdatedAt,
 	}, nil
 }
+
+func (r *ProjectRepository) GetProjectsList(ctx context.Context, params db.GetProjectsListParams) (int64, []domain.Project, error) {
+	total, err := r.queries.CountProjects(ctx, params.Q)
+	if err != nil {
+		return 0, nil, fmt.Errorf("count projects: %w", err)
+	}
+
+	listRaw, err := r.queries.GetProjectsList(ctx, params)
+	if err != nil {
+		return 0, nil, fmt.Errorf("get projects list: %w", err)
+	}
+
+	list := make([]domain.Project, len(listRaw))
+
+	for idx, item := range listRaw {
+		list[idx] = domain.Project{
+			ID:          domain.ProjectID(item.ID),
+			Name:        item.Name,
+			Description: item.Description,
+		}
+	}
+
+	return total, list, nil
+}

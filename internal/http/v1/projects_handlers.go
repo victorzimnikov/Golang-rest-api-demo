@@ -20,8 +20,43 @@ func NewProjectHandler(projectService *service.ProjectService) *ProjectHandler {
 }
 
 func (h *ProjectHandler) GetProjectsList(ctx fiber.Ctx) error {
-	// GetProjectsList
-	return ctx.SendStatus(501)
+	var request GetProjectsListRequest
+
+	if err := ctx.Bind().Query(&request); err != nil {
+		return fiber.NewErrorf(fiber.ErrBadRequest.Code, "invalid query parameters: %w", err)
+	}
+
+	query, err := request.toQuery()
+	if err != nil {
+		return err
+	}
+
+	total, listProjects, err := h.projectService.GetProjectsList(ctx.Context(), query)
+	if err != nil {
+		return err
+	}
+
+	list := make([]ProjectListItemResponse, len(listProjects))
+
+	for idx, item := range listProjects {
+		list[idx] = ProjectListItemResponse{
+			ID:          item.ID,
+			Name:        item.Name,
+			Description: item.Description,
+		}
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(GetProjectsListResponse{
+		List: list,
+		Paginator: Paginator{
+			Skip:  query.Skip,
+			Limit: query.Limit,
+			Size:  len(list),
+			Total: total,
+		},
+	})
 }
 
 func (h *ProjectHandler) CreateProject(ctx fiber.Ctx) error {

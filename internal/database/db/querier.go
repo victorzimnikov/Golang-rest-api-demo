@@ -9,8 +9,10 @@ import (
 )
 
 type Querier interface {
+	CountProjects(ctx context.Context, q_ string) (int64, error)
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
 	GetProject(ctx context.Context, id int64) (Project, error)
+	GetProjectsList(ctx context.Context, arg GetProjectsListParams) ([]GetProjectsListRow, error)
 }
 
 var _ Querier = (*Queries)(nil)

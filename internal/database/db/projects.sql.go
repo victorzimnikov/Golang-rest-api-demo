@@ -10,6 +10,22 @@ import (
 	"time"
 )
 
+const countProjects = `-- name: CountProjects :one
+SELECT COUNT(*)
+FROM projects
+WHERE (
+  name ILIKE '%' || $1::text || '%'
+  OR description ILIKE '%' || $1::text || '%'
+)
+`
+
+func (q *Queries) CountProjects(ctx context.Context, q_ string) (int64, error) {
+	row := q.db.QueryRow(ctx, countProjects, q_)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createProject = `-- name: CreateProject :one
 INSERT INTO
   projects (
@@ -73,4 +89,51 @@ func (q *Queries) GetProject(ctx context.Context, id int64) (Project, error) {
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getProjectsList = `-- name: GetProjectsList :many
+SELECT
+  id,
+  name,
+  description
+FROM projects
+WHERE (
+  name ILIKE '%' || $1::text || '%'
+  OR description ILIKE '%' || $1::text || '%'
+)
+ORDER BY created_at DESC, id DESC
+LIMIT $3
+OFFSET $2::bigint
+`
+
+type GetProjectsListParams struct {
+	Q          string
+	Skip       int64
+	LimitCount int32
+}
+
+type GetProjectsListRow struct {
+	ID          int64
+	Name        string
+	Description string
+}
+
+func (q *Queries) GetProjectsList(ctx context.Context, arg GetProjectsListParams) ([]GetProjectsListRow, error) {
+	rows, err := q.db.Query(ctx, getProjectsList, arg.Q, arg.Skip, arg.LimitCount)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetProjectsListRow{}
+	for rows.Next() {
+		var i GetProjectsListRow
+		if err := rows.Scan(&i.ID, &i.Name, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
