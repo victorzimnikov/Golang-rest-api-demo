@@ -26,6 +26,12 @@ const (
 	apiShutdownTimeout     = 10 * time.Second
 )
 
+// @title			REST Demo API
+// @version		1.0
+// @description	API для управления проектами, задачами и комментариями.
+// @accept			json
+// @produce		json
+// @BasePath		/api/v1
 func main() {
 	err := run()
 	if err != nil {

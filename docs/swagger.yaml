@@ -1,0 +1,159 @@
+basePath: /api/v1
+consumes:
+- application/json
+definitions:
+  CreateProjectRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  CreateProjectResponse:
+    properties:
+      data:
+        $ref: '#/definitions/Project'
+    type: object
+  GetProjectResponse:
+    properties:
+      data:
+        $ref: '#/definitions/Project'
+    type: object
+  GetProjectsListResponse:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/ListProject'
+        type: array
+      paginator:
+        $ref: '#/definitions/Paginator'
+    type: object
+  ListProject:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  Paginator:
+    properties:
+      limit:
+        type: integer
+      size:
+        type: integer
+      skip:
+        type: integer
+      total:
+        type: integer
+    type: object
+  Project:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API для управления проектами, задачами и комментариями.
+  title: REST Demo API
+  version: "1.0"
+paths:
+  /projects:
+    get:
+      description: Returns a projects list.
+      parameters:
+      - default: 0
+        description: Number of projects to skip
+        in: query
+        minimum: 0
+        name: skip
+        type: integer
+      - default: 10
+        description: Maximum number of projects
+        in: query
+        maximum: 50
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetProjectsListResponse'
+      summary: Get projects list
+      tags:
+      - Projects
+  /projects/{projectId}:
+    delete:
+      description: Delete a project by its identifier.
+      parameters:
+      - description: Project ID
+        in: path
+        minimum: 1
+        name: projectId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Project deleted
+      summary: Delete project
+      tags:
+      - Projects
+    get:
+      description: Returns a project by its identifier.
+      parameters:
+      - description: Project ID
+        in: path
+        minimum: 1
+        name: projectId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetProjectResponse'
+      summary: Get project
+      tags:
+      - Projects
+    post:
+      description: Create a project.
+      parameters:
+      - description: Project data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/CreateProjectResponse'
+      summary: Create project
+      tags:
+      - Projects
+produces:
+- application/json
+swagger: "2.0"

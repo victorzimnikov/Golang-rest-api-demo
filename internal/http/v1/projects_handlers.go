@@ -19,6 +19,17 @@ func NewProjectHandler(projectService *service.ProjectService) *ProjectHandler {
 	}
 }
 
+// GetProjectsList returns a projects list.
+//
+//	@Summary		Get projects list
+//	@Description	Returns a projects list.
+//	@Tags			Projects
+//	@Produce		json
+//	@Param			skip	query		int		false	"Number of projects to skip"	default(0)	minimum(0)
+//	@Param			limit	query		int		false	"Maximum number of projects"	default(10)	minimum(1)	maximum(50)
+//	@Param			q		query		string	false	"Search query"
+//	@Success		200		{object}	GetProjectsListResponse
+//	@Router			/projects [get]
 func (h *ProjectHandler) GetProjectsList(ctx fiber.Ctx) error {
 	var request GetProjectsListRequest
 
@@ -59,6 +70,15 @@ func (h *ProjectHandler) GetProjectsList(ctx fiber.Ctx) error {
 	})
 }
 
+// CreateProject create a project.
+//
+//	@Summary		Create project
+//	@Description	Create a project.
+//	@Tags			Projects
+//	@Produce		json
+//	@Param			request	body		CreateProjectRequest	true	"Project data"
+//	@Success		201		{object}	CreateProjectResponse
+//	@Router			/projects/{projectId} [POST]
 func (h *ProjectHandler) CreateProject(ctx fiber.Ctx) error {
 	var request CreateProjectRequest
 
@@ -81,8 +101,8 @@ func (h *ProjectHandler) CreateProject(ctx fiber.Ctx) error {
 
 	ctx.Status(fiber.StatusCreated)
 
-	return ctx.JSON(SuccessResponse[CreateProjectResponse]{
-		Data: CreateProjectResponse{
+	return ctx.JSON(CreateProjectResponse{
+		Data: CreateProjectDataResponse{
 			ID:          project.ID,
 			Name:        project.Name,
 			Description: project.Description,
@@ -92,6 +112,15 @@ func (h *ProjectHandler) CreateProject(ctx fiber.Ctx) error {
 	})
 }
 
+// GetProject returns a project by ID.
+//
+//	@Summary		Get project
+//	@Description	Returns a project by its identifier.
+//	@Tags			Projects
+//	@Produce		json
+//	@Param			projectId	path		int	true	"Project ID"	minimum(1)
+//	@Success		200			{object}	GetProjectResponse
+//	@Router			/projects/{projectId} [get]
 func (h *ProjectHandler) GetProject(ctx fiber.Ctx) error {
 	projectIDRaw := ctx.Params("projectId")
 	projectID, err := strconv.ParseInt(projectIDRaw, 10, 64)
@@ -109,8 +138,8 @@ func (h *ProjectHandler) GetProject(ctx fiber.Ctx) error {
 
 	ctx.Status(fiber.StatusOK)
 
-	return ctx.JSON(SuccessResponse[GetProjectResponse]{
-		Data: GetProjectResponse{
+	return ctx.JSON(GetProjectResponse{
+		Data: GetProjectDataResponse{
 			ID:          project.ID,
 			Name:        project.Name,
 			Description: project.Description,
@@ -125,6 +154,15 @@ func (h *ProjectHandler) UpdateProject(ctx fiber.Ctx) error {
 	return ctx.SendStatus(501)
 }
 
+// DeleteProject a project by ID.
+//
+//	@Summary		Delete project
+//	@Description	Delete a project by its identifier.
+//	@Tags			Projects
+//	@Produce		json
+//	@Param			projectId	path	int	true	"Project ID"	minimum(1)
+//	@Success		204			"Project deleted"
+//	@Router			/projects/{projectId} [delete]
 func (h *ProjectHandler) DeleteProject(ctx fiber.Ctx) error {
 	projectIDRaw := ctx.Params("projectId")
 	projectID, err := strconv.ParseInt(projectIDRaw, 10, 64)

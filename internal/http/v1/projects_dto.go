@@ -14,21 +14,25 @@ type CreateProjectRequest struct {
 	Description string `json:"description"`
 }
 
-type CreateProjectResponse struct {
+type CreateProjectDataResponse struct {
 	ID          domain.ProjectID `json:"id"`
 	Name        string           `json:"name"`
 	Description string           `json:"description"`
 	CreatedAt   time.Time        `json:"createdAt"`
 	UpdatedAt   time.Time        `json:"updatedAt"`
-}
+} //	@name	Project
 
-type GetProjectResponse struct {
+type CreateProjectResponse = SuccessResponse[CreateProjectDataResponse] //	@name	CreateProjectResponse
+
+type GetProjectDataResponse struct {
 	ID          domain.ProjectID `json:"id"`
 	Name        string           `json:"name"`
 	Description string           `json:"description"`
 	CreatedAt   time.Time        `json:"createdAt"`
 	UpdatedAt   time.Time        `json:"updatedAt"`
-}
+} //	@name	Project
+
+type GetProjectResponse = SuccessResponse[GetProjectDataResponse] //	@name	GetProjectResponse
 
 type GetProjectsListRequest struct {
 	SkipLimit
@@ -67,6 +71,6 @@ type ProjectListItemResponse struct {
 	ID          domain.ProjectID `json:"id"`
 	Name        string           `json:"name"`
 	Description string           `json:"description"`
-}
+} //	@name	ListProject
 
-type GetProjectsListResponse = SuccessListResponse[ProjectListItemResponse]
+type GetProjectsListResponse = SuccessListResponse[ProjectListItemResponse] //	@name	GetProjectsListResponse
