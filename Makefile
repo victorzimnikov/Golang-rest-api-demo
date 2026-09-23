@@ -1,4 +1,4 @@
-.PHONY: dev_api watch_api fmt migrate_up sql_generate check swagger_gen
+.PHONY: dev_api watch_api fmt migrate_up sql_gen check swagger_gen
 
 dev_api:
 	set -a && . ./.env && set +a && go run ./cmd/api
@@ -16,7 +16,7 @@ check:
 migrate_up:
 	set -a && . ./.env && set +a && go tool goose -dir db/migrations postgres "$$DATABASE_URL" up
 
-sql_generate:
+sql_gen:
 	go tool sqlc generate
 
 swagger_fmt:

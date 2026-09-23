@@ -7,7 +7,8 @@ package db
 
 import (
 	"context"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const countProjects = `-- name: CountProjects :one
@@ -30,12 +31,15 @@ const createProject = `-- name: CreateProject :one
 INSERT INTO
   projects (
     name,
-    description,
-    created_at,
-    updated_at
+    description
   )
 VALUES
-  ($1, $2, $3, $4) RETURNING id,
+  (
+    $1,
+    $2
+  )
+RETURNING
+  id,
   name,
   description,
   created_at,
@@ -45,17 +49,10 @@ VALUES
 type CreateProjectParams struct {
 	Name        string
 	Description string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
-	row := q.db.QueryRow(ctx, createProject,
-		arg.Name,
-		arg.Description,
-		arg.CreatedAt,
-		arg.UpdatedAt,
-	)
+	row := q.db.QueryRow(ctx, createProject, arg.Name, arg.Description)
 	var i Project
 	err := row.Scan(
 		&i.ID,
@@ -149,4 +146,33 @@ func (q *Queries) GetProjectsList(ctx context.Context, arg GetProjectsListParams
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateProject = `-- name: UpdateProject :one
+UPDATE projects
+SET
+  name = COALESCE($1, projects.name),
+  description = COALESCE($2, projects.description),
+  updated_at = NOW()
+WHERE id = $3
+RETURNING id, name, description, created_at, updated_at
+`
+
+type UpdateProjectParams struct {
+	Name        pgtype.Text
+	Description pgtype.Text
+	ID          int64
+}
+
+func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error) {
+	row := q.db.QueryRow(ctx, updateProject, arg.Name, arg.Description, arg.ID)
+	var i Project
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

@@ -2,7 +2,6 @@ package v1
 
 import (
 	"strconv"
-	"time"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
@@ -80,16 +79,12 @@ func (h *ProjectHandler) GetProjectsList(ctx fiber.Ctx) error {
 //	@Success		201		{object}	CreateProjectResponse
 //	@Router			/projects/{projectId} [POST]
 func (h *ProjectHandler) CreateProject(ctx fiber.Ctx) error {
-	var request CreateProjectRequest
-
-	if err := ctx.Bind().Body(&request); err != nil {
-		return fiber.NewError(
-			fiber.StatusBadRequest,
-			"invalid request body",
-		)
+	body, err := getRequestBody[CreateProjectRequest](ctx)
+	if err != nil {
+		return err
 	}
 
-	projectBody, err := domain.NewProject(request.Name, request.Description, time.Now())
+	projectBody, err := domain.NewProject(body.Name, body.Description)
 	if err != nil {
 		return err
 	}
@@ -122,16 +117,12 @@ func (h *ProjectHandler) CreateProject(ctx fiber.Ctx) error {
 //	@Success		200			{object}	GetProjectResponse
 //	@Router			/projects/{projectId} [get]
 func (h *ProjectHandler) GetProject(ctx fiber.Ctx) error {
-	projectIDRaw := ctx.Params("projectId")
-	projectID, err := strconv.ParseInt(projectIDRaw, 10, 64)
-	if err != nil || projectID <= 0 {
-		return fiber.NewError(
-			fiber.StatusBadRequest,
-			"invalid project id",
-		)
+	projectID, err := getProjectIDParam(ctx)
+	if err != nil {
+		return err
 	}
 
-	project, responseErr := h.projectService.GetProjectByID(ctx.Context(), domain.ProjectID(projectID))
+	project, responseErr := h.projectService.GetProjectByID(ctx.Context(), projectID)
 	if responseErr != nil {
 		return responseErr
 	}
@@ -149,9 +140,50 @@ func (h *ProjectHandler) GetProject(ctx fiber.Ctx) error {
 	})
 }
 
+// UpdateProject update a project.
+//
+//	@Summary		  Update project
+//	@Description	Update a project.
+//	@Tags			    Projects
+//	@Produce		  json
+//	@Param        projectId path int true "Project ID"
+//	@Param			  request	body		UpdateProjectRequest	true	"Project data"
+//	@Success		  200		{object}	UpdateProjectResponse
+//	@Router			  /projects/{projectId} [PATCH]
 func (h *ProjectHandler) UpdateProject(ctx fiber.Ctx) error {
-	// UpdateProject
-	return ctx.SendStatus(501)
+	projectID, err := getProjectIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	body, err := getRequestBody[UpdateProjectRequest](ctx)
+	if err != nil {
+		return err
+	}
+
+	if body.Description == nil && body.Name == nil {
+		return fiber.NewError(
+			fiber.StatusBadRequest,
+			"invalid request body",
+		)
+	}
+
+	command := service.UpdateProjectCommand{
+		ID:          projectID,
+		Name:        body.Name,
+		Description: body.Description,
+	}
+
+	response, responseErr := h.projectService.UpdateProject(ctx.Context(), command)
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(UpdateProjectResponse{
+		Data: UpdateProjectDataResponse(*response),
+	})
 }
 
 // DeleteProject a project by ID.
@@ -164,16 +196,12 @@ func (h *ProjectHandler) UpdateProject(ctx fiber.Ctx) error {
 //	@Success		204			"Project deleted"
 //	@Router			/projects/{projectId} [delete]
 func (h *ProjectHandler) DeleteProject(ctx fiber.Ctx) error {
-	projectIDRaw := ctx.Params("projectId")
-	projectID, err := strconv.ParseInt(projectIDRaw, 10, 64)
-	if err != nil || projectID <= 0 {
-		return fiber.NewError(
-			fiber.StatusBadRequest,
-			"invalid project id",
-		)
+	projectID, err := getProjectIDParam(ctx)
+	if err != nil {
+		return err
 	}
 
-	responseErr := h.projectService.DeleteProject(ctx.Context(), domain.ProjectID(projectID))
+	responseErr := h.projectService.DeleteProject(ctx.Context(), projectID)
 	if responseErr != nil {
 		return responseErr
 	}
@@ -193,4 +221,30 @@ func (h *ProjectHandler) CreateProjectIssue(ctx fiber.Ctx) error {
 func (h *ProjectHandler) GetProjectIssues(ctx fiber.Ctx) error {
 	// GetProjectIssues
 	return ctx.SendStatus(501)
+}
+
+func getProjectIDParam(ctx fiber.Ctx) (domain.ProjectID, error) {
+	projectIDRaw := ctx.Params("projectId")
+	projectID, err := strconv.ParseInt(projectIDRaw, 10, 64)
+	if err != nil || projectID <= 0 {
+		return 0, fiber.NewError(
+			fiber.StatusBadRequest,
+			"invalid project id",
+		)
+	}
+
+	return domain.ProjectID(projectID), nil
+}
+
+func getRequestBody[T any](ctx fiber.Ctx) (*T, error) {
+	var request T
+
+	if err := ctx.Bind().Body(&request); err != nil {
+		return nil, fiber.NewError(
+			fiber.StatusBadRequest,
+			"invalid request body",
+		)
+	}
+
+	return &request, nil
 }

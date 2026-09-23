@@ -24,6 +24,21 @@ type CreateProjectDataResponse struct {
 
 type CreateProjectResponse = SuccessResponse[CreateProjectDataResponse] //	@name	CreateProjectResponse
 
+type UpdateProjectRequest struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+}
+
+type UpdateProjectDataResponse struct {
+	ID          domain.ProjectID `json:"id"`
+	Name        string           `json:"name"`
+	Description string           `json:"description"`
+	CreatedAt   time.Time        `json:"createdAt"`
+	UpdatedAt   time.Time        `json:"updatedAt"`
+} //	@name	Project
+
+type UpdateProjectResponse = SuccessResponse[UpdateProjectDataResponse] //	@name	UpdateProjectResponse
+
 type GetProjectDataResponse struct {
 	ID          domain.ProjectID `json:"id"`
 	Name        string           `json:"name"`
@@ -40,7 +55,7 @@ type GetProjectsListRequest struct {
 	Q string `query:"q"`
 }
 
-func (r *GetProjectsListRequest) toQuery() (service.GetProjectsListQuery, error) {
+func (r *GetProjectsListRequest) toQuery() (service.GetProjectsListCommand, error) {
 	skip := 0
 	limit := 10
 
@@ -53,14 +68,14 @@ func (r *GetProjectsListRequest) toQuery() (service.GetProjectsListQuery, error)
 	}
 
 	if skip < 0 {
-		return service.GetProjectsListQuery{}, fiber.NewError(fiber.ErrBadRequest.Code, "skip must be positive")
+		return service.GetProjectsListCommand{}, fiber.NewError(fiber.ErrBadRequest.Code, "skip must be positive")
 	}
 
 	if limit < 1 || limit > 50 {
-		return service.GetProjectsListQuery{}, fiber.NewError(fiber.ErrBadRequest.Code, "limit must be between 1 and 50")
+		return service.GetProjectsListCommand{}, fiber.NewError(fiber.ErrBadRequest.Code, "limit must be between 1 and 50")
 	}
 
-	return service.GetProjectsListQuery{
+	return service.GetProjectsListCommand{
 		Skip:  skip,
 		Limit: limit,
 		Q:     strings.TrimSpace(r.Q),

@@ -2,12 +2,15 @@
 INSERT INTO
   projects (
     name,
-    description,
-    created_at,
-    updated_at
+    description
   )
 VALUES
-  ($1, $2, $3, $4) RETURNING id,
+  (
+    sqlc.arg('name'),
+    sqlc.arg('description')
+  )
+RETURNING
+  id,
   name,
   description,
   created_at,
@@ -49,3 +52,12 @@ WHERE (
 DELETE FROM projects
 WHERE id = $1
 RETURNING id;
+
+-- name: UpdateProject :one
+UPDATE projects
+SET
+  name = COALESCE(sqlc.narg('name'), projects.name),
+  description = COALESCE(sqlc.narg('description'), projects.description),
+  updated_at = NOW()
+WHERE id = sqlc.arg('id')
+RETURNING id, name, description, created_at, updated_at;

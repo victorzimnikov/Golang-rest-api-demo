@@ -16,6 +16,12 @@ const (
 	pgProjectNameUniqueViolationConstraintName = "project_name_unique_idx"
 )
 
+type UpdateProjectParams struct {
+	ID          domain.ProjectID
+	Name        *string
+	Description *string
+}
+
 type ProjectRepository struct {
 	queries *db.Queries
 }
@@ -26,17 +32,13 @@ func NewProjectRepository(queries *db.Queries) *ProjectRepository {
 	}
 }
 
-func (r *ProjectRepository) SaveProject(ctx context.Context, project *domain.Project) (*domain.Project, error) {
+func (r *ProjectRepository) SaveProject(ctx context.Context, data db.CreateProjectParams) (*domain.Project, error) {
 	row, err := r.queries.CreateProject(ctx, db.CreateProjectParams{
-		Name:        project.Name,
-		Description: project.Description,
-		CreatedAt:   project.CreatedAt,
-		UpdatedAt:   project.UpdatedAt,
+		Name:        data.Name,
+		Description: data.Description,
 	})
 
-	var pgError *pgconn.PgError
-
-	if errors.As(err, &pgError) && pgError.Code == pgUniqueViolationCode && pgError.ConstraintName == pgProjectNameUniqueViolationConstraintName {
+	if checkIsNotUniqueName(err) {
 		return nil, domain.ErrProjectNameAlreadyExists
 	}
 
@@ -107,4 +109,40 @@ func (r *ProjectRepository) DeleteProject(ctx context.Context, id domain.Project
 	}
 
 	return nil
+}
+
+func (r *ProjectRepository) UpdateProject(
+	ctx context.Context,
+	params UpdateProjectParams,
+) (*domain.Project, error) {
+	response, err := r.queries.UpdateProject(ctx, db.UpdateProjectParams{
+		Name:        toNullableText(params.Name),
+		Description: toNullableText(params.Description),
+		ID:          int64(params.ID),
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, domain.ErrProjectNotFound
+	}
+
+	if checkIsNotUniqueName(err) {
+		return nil, domain.ErrProjectNameAlreadyExists
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("update project by ID:%d: %w", params.ID, err)
+	}
+
+	return &domain.Project{
+		ID:          domain.ProjectID(response.ID),
+		Name:        response.Name,
+		Description: response.Description,
+		CreatedAt:   response.CreatedAt,
+		UpdatedAt:   response.UpdatedAt,
+	}, nil
+}
+
+func checkIsNotUniqueName(err error) bool {
+	var pgError *pgconn.PgError
+
+	return errors.As(err, &pgError) && pgError.Code == pgUniqueViolationCode && pgError.ConstraintName == pgProjectNameUniqueViolationConstraintName
 }

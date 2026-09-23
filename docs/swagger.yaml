@@ -61,6 +61,18 @@ definitions:
       updatedAt:
         type: string
     type: object
+  UpdateProjectRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  UpdateProjectResponse:
+    properties:
+      data:
+        $ref: '#/definitions/Project'
+    type: object
 info:
   contact: {}
   description: API для управления проектами, задачами и комментариями.
@@ -133,6 +145,30 @@ paths:
           schema:
             $ref: '#/definitions/GetProjectResponse'
       summary: Get project
+      tags:
+      - Projects
+    patch:
+      description: Update a project.
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: integer
+      - description: Project data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UpdateProjectResponse'
+      summary: Update project
       tags:
       - Projects
     post:

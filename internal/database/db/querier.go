@@ -14,6 +14,7 @@ type Querier interface {
 	DeleteProject(ctx context.Context, id int64) (int64, error)
 	GetProject(ctx context.Context, id int64) (Project, error)
 	GetProjectsList(ctx context.Context, arg GetProjectsListParams) ([]GetProjectsListRow, error)
+	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)
 }
 
 var _ Querier = (*Queries)(nil)

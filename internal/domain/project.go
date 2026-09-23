@@ -24,39 +24,43 @@ type Project struct {
 	UpdatedAt   time.Time
 }
 
-func NewProject(name string, description string, now time.Time) (*Project, error) {
-	name = strings.TrimSpace(name)
-
-	if err := validateName(name); err != nil {
+func NewProject(name string, description string) (*Project, error) {
+	normalizedName, err := NormalizeProjectName(name)
+	if err != nil {
 		return nil, err
 	}
 
 	return &Project{
-		Name:        name,
+		Name:        normalizedName,
 		Description: description,
-		CreatedAt:   now,
-		UpdatedAt:   now,
 	}, nil
 }
 
-func (p *Project) ChangeName(name string, now time.Time) error {
-	name = strings.TrimSpace(name)
-
-	if err := validateName(name); err != nil {
+func (p *Project) ChangeName(name string) error {
+	normalizedName, err := NormalizeProjectName(name)
+	if err != nil {
 		return err
 	}
 
-	p.Name = name
-	p.UpdatedAt = now
+	p.Name = normalizedName
 
 	return nil
 }
 
-func (p *Project) ChangeDescription(description string, now time.Time) error {
+func (p *Project) ChangeDescription(description string) error {
 	p.Description = description
-	p.UpdatedAt = now
 
 	return nil
+}
+
+func NormalizeProjectName(name string) (string, error) {
+	normalizedName := strings.TrimSpace(name)
+
+	if err := validateName(normalizedName); err != nil {
+		return "", err
+	}
+
+	return normalizedName, nil
 }
 
 func validateName(name string) error {
