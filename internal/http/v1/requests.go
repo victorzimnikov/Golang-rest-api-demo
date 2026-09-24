@@ -25,6 +25,19 @@ func getProjectIDParam(ctx fiber.Ctx) (domain.ProjectID, error) {
 	return domain.ProjectID(projectID), nil
 }
 
+func getIssueIDParam(ctx fiber.Ctx) (domain.IssueID, error) {
+	issueIDRaw := ctx.Params("issueId")
+	issueID, err := strconv.ParseInt(issueIDRaw, 10, 64)
+	if err != nil || issueID <= 0 {
+		return 0, fiber.NewError(
+			fiber.StatusBadRequest,
+			"invalid issue id",
+		)
+	}
+
+	return domain.IssueID(issueID), nil
+}
+
 func getRequestBody[T any](ctx fiber.Ctx) (*T, error) {
 	var request T
 

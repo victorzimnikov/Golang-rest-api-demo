@@ -32,6 +32,11 @@ definitions:
       data:
         $ref: '#/definitions/Project'
     type: object
+  GetIssueResponse:
+    properties:
+      data:
+        $ref: '#/definitions/Issue'
+    type: object
   GetProjectIssuesListResponse:
     properties:
       list:
@@ -165,6 +170,26 @@ info:
   title: REST Demo API
   version: "1.0"
 paths:
+  /issues/{issueId}:
+    get:
+      description: Returns a issue by its identifier.
+      parameters:
+      - description: Issue ID
+        in: path
+        minimum: 1
+        name: issueId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetIssueResponse'
+      summary: Get issue
+      tags:
+      - Issues
   /projects:
     get:
       description: Returns a projects list.

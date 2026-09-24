@@ -77,8 +77,30 @@ func (r *IssueRepository) CreateIssue(ctx context.Context, params CreateIssuePar
 	}, nil
 }
 
-func (r *IssueRepository) GetIssue(ctx context.Context) error {
-	return nil
+func (r *IssueRepository) GetIssueByID(ctx context.Context, id domain.IssueID) (*domain.Issue, error) {
+	issue, err := r.queries.GetIssue(ctx, int64(id))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, domain.ErrIssueNotFound
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("get issue by ID:%d: %w", id, err)
+	}
+
+	return &domain.Issue{
+		ID:          domain.IssueID(issue.ID),
+		Title:       issue.Title,
+		Description: issue.Description,
+		Status:      domain.IssueStatus(issue.Status),
+		Priority:    domain.IssuePriority(issue.Priority),
+		DueDate:     fromNullableDate(issue.DueDate),
+		CreatedAt:   issue.CreatedAt,
+		UpdatedAt:   issue.UpdatedAt,
+		Project: domain.ProjectShort{
+			ID:   domain.ProjectID(issue.ProjectID),
+			Name: issue.ProjectName,
+		},
+	}, nil
 }
 
 func (r *IssueRepository) GetProjectIssuesList(ctx context.Context, params GetProjectIssuesListParams) (int64, []domain.ProjectIssueListItem, error) {

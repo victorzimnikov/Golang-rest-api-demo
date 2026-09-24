@@ -16,9 +16,41 @@ func NewIssueHandler(issueService *service.IssueService) *IssueHandler {
 	}
 }
 
+// GetIssue returns a issue by ID.
+//
+//	@Summary			Get issue
+//	@Description	Returns a issue by its identifier.
+//	@Tags					Issues
+//	@Produce			json
+//	@Param				issueId						path	int	true	"Issue ID"	minimum(1)
+//	@Success			200								{object}	GetIssueResponse
+//	@Router				/issues/{issueId} [get]
 func (h *IssueHandler) GetIssue(ctx fiber.Ctx) error {
-	// GetIssue
-	return ctx.SendStatus(501)
+	issueID, err := getIssueIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	response, responseErr := h.issueService.GetIssue(ctx.Context(), issueID)
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(GetIssueResponse{
+		Data: GetIssueDataResponse{
+			ID:          response.ID,
+			Title:       response.Title,
+			Description: response.Description,
+			Status:      response.Status,
+			Priority:    response.Priority,
+			DueDate:     response.DueDate,
+			CreatedAt:   response.CreatedAt,
+			UpdatedAt:   response.UpdatedAt,
+			Project:     ProjectShort(response.Project),
+		},
+	})
 }
 
 func (h *IssueHandler) UpdateIssue(ctx fiber.Ctx) error {
@@ -84,7 +116,7 @@ func (h *IssueHandler) CreateProjectIssue(ctx fiber.Ctx) error {
 			DueDate:     response.DueDate,
 			CreatedAt:   response.CreatedAt,
 			UpdatedAt:   response.UpdatedAt,
-			Project: CreateIssueDataProjectResponse{
+			Project: ProjectShort{
 				ID:   response.Project.ID,
 				Name: response.Project.Name,
 			},

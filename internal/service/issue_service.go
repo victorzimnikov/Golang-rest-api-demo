@@ -49,8 +49,8 @@ func (s *IssueService) CreateIssue(ctx context.Context, issue *domain.Issue) (*d
 	return s.issueRepository.CreateIssue(ctx, params)
 }
 
-func (s *IssueService) GetIssue(ctx context.Context) error {
-	return s.issueRepository.GetIssue(ctx)
+func (s *IssueService) GetIssue(ctx context.Context, id domain.IssueID) (*domain.Issue, error) {
+	return s.issueRepository.GetIssueByID(ctx, id)
 }
 
 func (s *IssueService) GetProjectIssuesList(ctx context.Context, command GetProjectIssuesListCommand) (int64, []domain.ProjectIssueListItem, error) {

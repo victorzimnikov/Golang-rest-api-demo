@@ -89,3 +89,19 @@ WHERE
     sqlc.arg(priority)::text = ''
     OR priority = sqlc.arg(priority)::text
   );
+
+-- name: GetIssue :one
+SELECT
+  i.id,
+  i.title,
+  i.description,
+  i.status,
+  i.priority,
+  i.created_at,
+  i.updated_at,
+  i.due_date,
+  p.id AS project_id,
+  p.name AS project_name
+FROM issues i
+JOIN projects p ON p.id = i.project_id
+WHERE i.id = sqlc.arg(issue_id);

@@ -21,6 +21,36 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/issues/{issueId}": {
+            "get": {
+                "description": "Returns a issue by its identifier.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Issues"
+                ],
+                "summary": "Get issue",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Issue ID",
+                        "name": "issueId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetIssueResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/projects": {
             "get": {
                 "description": "Returns a projects list.",
@@ -343,6 +373,14 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/Project"
+                }
+            }
+        },
+        "GetIssueResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/Issue"
                 }
             }
         },

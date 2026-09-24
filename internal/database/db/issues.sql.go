@@ -146,6 +146,54 @@ func (q *Queries) CreateIssue(ctx context.Context, arg CreateIssueParams) (Creat
 	return i, err
 }
 
+const getIssue = `-- name: GetIssue :one
+SELECT
+  i.id,
+  i.title,
+  i.description,
+  i.status,
+  i.priority,
+  i.created_at,
+  i.updated_at,
+  i.due_date,
+  p.id AS project_id,
+  p.name AS project_name
+FROM issues i
+JOIN projects p ON p.id = i.project_id
+WHERE i.id = $1
+`
+
+type GetIssueRow struct {
+	ID          int64
+	Title       string
+	Description string
+	Status      string
+	Priority    string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DueDate     pgtype.Date
+	ProjectID   int64
+	ProjectName string
+}
+
+func (q *Queries) GetIssue(ctx context.Context, issueID int64) (GetIssueRow, error) {
+	row := q.db.QueryRow(ctx, getIssue, issueID)
+	var i GetIssueRow
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Status,
+		&i.Priority,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DueDate,
+		&i.ProjectID,
+		&i.ProjectName,
+	)
+	return i, err
+}
+
 const getProjectIssuesList = `-- name: GetProjectIssuesList :many
 SELECT
   id,
