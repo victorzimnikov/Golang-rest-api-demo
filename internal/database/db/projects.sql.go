@@ -70,11 +70,11 @@ WHERE id = $1
 RETURNING id
 `
 
-func (q *Queries) DeleteProject(ctx context.Context, id int64) (int64, error) {
-	row := q.db.QueryRow(ctx, deleteProject, id)
-	var id_2 int64
-	err := row.Scan(&id_2)
-	return id_2, err
+func (q *Queries) DeleteProject(ctx context.Context, projectID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, deleteProject, projectID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getProject = `-- name: GetProject :one

@@ -64,8 +64,8 @@ func (s *IssueService) GetProjectIssuesList(ctx context.Context, command GetProj
 	})
 }
 
-func (s *IssueService) DeleteIssue(ctx context.Context) error {
-	return s.issueRepository.DeleteIssue(ctx)
+func (s *IssueService) DeleteIssue(ctx context.Context, id domain.IssueID) error {
+	return s.issueRepository.DeleteIssue(ctx, id)
 }
 
 func (s *IssueService) UpdateIssue(ctx context.Context) error {

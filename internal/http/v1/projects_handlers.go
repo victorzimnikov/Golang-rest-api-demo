@@ -180,13 +180,13 @@ func (h *ProjectHandler) UpdateProject(ctx fiber.Ctx) error {
 
 // DeleteProject a project by ID.
 //
-//	@Summary		Delete project
+//	@Summary			Delete project
 //	@Description	Delete a project by its identifier.
-//	@Tags			Projects
-//	@Produce		json
-//	@Param			projectId	path	int	true	"Project ID"	minimum(1)
-//	@Success		204			"Project deleted"
-//	@Router			/projects/{projectId} [delete]
+//	@Tags					Projects
+//	@Produce			json
+//	@Param				projectId							path	int	true	"Project ID"	minimum(1)
+//	@Success			200										"Project deleted"
+//	@Router				/projects/{projectId} [delete]
 func (h *ProjectHandler) DeleteProject(ctx fiber.Ctx) error {
 	projectID, err := getProjectIDParam(ctx)
 	if err != nil {

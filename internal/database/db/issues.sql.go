@@ -146,6 +146,19 @@ func (q *Queries) CreateIssue(ctx context.Context, arg CreateIssueParams) (Creat
 	return i, err
 }
 
+const deleteIssue = `-- name: DeleteIssue :one
+DELETE FROM issues
+WHERE id = $1
+RETURNING id
+`
+
+func (q *Queries) DeleteIssue(ctx context.Context, issueID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, deleteIssue, issueID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getIssue = `-- name: GetIssue :one
 SELECT
   i.id,

@@ -171,6 +171,23 @@ info:
   version: "1.0"
 paths:
   /issues/{issueId}:
+    delete:
+      description: Delete a issue by its identifier.
+      parameters:
+      - description: Issue ID
+        in: path
+        minimum: 1
+        name: issueId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Issue deleted
+      summary: Delete issue
+      tags:
+      - Issues
     get:
       description: Returns a issue by its identifier.
       parameters:
@@ -234,7 +251,7 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
+        "200":
           description: Project deleted
       summary: Delete project
       tags:

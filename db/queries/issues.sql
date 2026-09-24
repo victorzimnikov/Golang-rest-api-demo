@@ -105,3 +105,8 @@ SELECT
 FROM issues i
 JOIN projects p ON p.id = i.project_id
 WHERE i.id = sqlc.arg(issue_id);
+
+-- name: DeleteIssue :one
+DELETE FROM issues
+WHERE id = sqlc.arg(issue_id)
+RETURNING id;

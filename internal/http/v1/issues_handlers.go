@@ -58,9 +58,31 @@ func (h *IssueHandler) UpdateIssue(ctx fiber.Ctx) error {
 	return ctx.SendStatus(501)
 }
 
+// DeleteIssue a issue by ID.
+//
+//	@Summary			Delete issue
+//	@Description	Delete a issue by its identifier.
+//	@Tags					Issues
+//	@Produce			json
+//	@Param				issueId						path	int	true	"Issue ID"	minimum(1)
+//	@Success			200								"Issue deleted"
+//	@Router				/issues/{issueId} [delete]
 func (h *IssueHandler) DeleteIssue(ctx fiber.Ctx) error {
-	// DeleteIssue
-	return ctx.SendStatus(501)
+	issueID, err := getIssueIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	responseErr := h.issueService.DeleteIssue(ctx.Context(), issueID)
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(SuccessResponse[*domain.Project]{
+		Data: nil,
+	})
 }
 
 func (h *IssueHandler) CreateIssueComment(ctx fiber.Ctx) error {

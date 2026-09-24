@@ -50,7 +50,7 @@ WHERE (
 
 -- name: DeleteProject :one
 DELETE FROM projects
-WHERE id = $1
+WHERE id = sqlc.arg(project_id)
 RETURNING id;
 
 -- name: UpdateProject :one

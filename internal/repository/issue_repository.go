@@ -140,7 +140,16 @@ func (r *IssueRepository) GetProjectIssuesList(ctx context.Context, params GetPr
 	return total, list, nil
 }
 
-func (r *IssueRepository) DeleteIssue(ctx context.Context) error {
+func (r *IssueRepository) DeleteIssue(ctx context.Context, id domain.IssueID) error {
+	_, err := r.queries.DeleteIssue(ctx, int64(id))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.ErrIssueNotFound
+	}
+
+	if err != nil {
+		return fmt.Errorf("delete issue by ID:%d: %w", id, err)
+	}
+
 	return nil
 }
 
