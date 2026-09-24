@@ -1,8 +1,6 @@
 package v1
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v3"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/service"
@@ -211,40 +209,4 @@ func (h *ProjectHandler) DeleteProject(ctx fiber.Ctx) error {
 	return ctx.JSON(SuccessResponse[*domain.Project]{
 		Data: nil,
 	})
-}
-
-func (h *ProjectHandler) CreateProjectIssue(ctx fiber.Ctx) error {
-	// CreateProjectIssue
-	return ctx.SendStatus(501)
-}
-
-func (h *ProjectHandler) GetProjectIssues(ctx fiber.Ctx) error {
-	// GetProjectIssues
-	return ctx.SendStatus(501)
-}
-
-func getProjectIDParam(ctx fiber.Ctx) (domain.ProjectID, error) {
-	projectIDRaw := ctx.Params("projectId")
-	projectID, err := strconv.ParseInt(projectIDRaw, 10, 64)
-	if err != nil || projectID <= 0 {
-		return 0, fiber.NewError(
-			fiber.StatusBadRequest,
-			"invalid project id",
-		)
-	}
-
-	return domain.ProjectID(projectID), nil
-}
-
-func getRequestBody[T any](ctx fiber.Ctx) (*T, error) {
-	var request T
-
-	if err := ctx.Bind().Body(&request); err != nil {
-		return nil, fiber.NewError(
-			fiber.StatusBadRequest,
-			"invalid request body",
-		)
-	}
-
-	return &request, nil
 }

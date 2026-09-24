@@ -9,10 +9,12 @@ import (
 
 const MaxProjectNameLength = 100
 
-var ErrProjectNotFound = errors.New("project not found")
-var ErrProjectNameRequired = errors.New("project name is required")
-var ErrProjectNameTooLong = errors.New("project name is too long")
-var ErrProjectNameAlreadyExists = errors.New("project name already exists")
+var (
+	ErrProjectNotFound          = errors.New("project not found")
+	ErrProjectNameRequired      = errors.New("project name is required")
+	ErrProjectNameTooLong       = errors.New("project name is too long")
+	ErrProjectNameAlreadyExists = errors.New("project name already exists")
+)
 
 type ProjectID int64
 
@@ -22,6 +24,11 @@ type Project struct {
 	Description string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+}
+
+type ProjectShort struct {
+	ID   ProjectID
+	Name string
 }
 
 func NewProject(name string, description string) (*Project, error) {
@@ -56,14 +63,14 @@ func (p *Project) ChangeDescription(description string) error {
 func NormalizeProjectName(name string) (string, error) {
 	normalizedName := strings.TrimSpace(name)
 
-	if err := validateName(normalizedName); err != nil {
+	if err := validateProjectName(normalizedName); err != nil {
 		return "", err
 	}
 
 	return normalizedName, nil
 }
 
-func validateName(name string) error {
+func validateProjectName(name string) error {
 	if name == "" {
 		return ErrProjectNameRequired
 	}

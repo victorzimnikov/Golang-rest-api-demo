@@ -21,28 +21,28 @@ type GetProjectsListCommand struct {
 }
 
 type ProjectService struct {
-	ProjectRepository *repository.ProjectRepository
+	projectRepository *repository.ProjectRepository
 }
 
 func NewProjectService(projectRepository *repository.ProjectRepository) *ProjectService {
 	return &ProjectService{
-		ProjectRepository: projectRepository,
+		projectRepository: projectRepository,
 	}
 }
 
 func (s *ProjectService) CreateProject(ctx context.Context, project *domain.Project) (*domain.Project, error) {
-	return s.ProjectRepository.SaveProject(ctx, db.CreateProjectParams{
+	return s.projectRepository.SaveProject(ctx, db.CreateProjectParams{
 		Name:        project.Name,
 		Description: project.Description,
 	})
 }
 
 func (s *ProjectService) GetProjectByID(ctx context.Context, id domain.ProjectID) (*domain.Project, error) {
-	return s.ProjectRepository.GetProjectByID(ctx, id)
+	return s.projectRepository.GetProjectByID(ctx, id)
 }
 
 func (s *ProjectService) GetProjectsList(ctx context.Context, query GetProjectsListCommand) (int64, []domain.Project, error) {
-	return s.ProjectRepository.GetProjectsList(ctx, db.GetProjectsListParams{
+	return s.projectRepository.GetProjectsList(ctx, db.GetProjectsListParams{
 		Q:          query.Q,
 		Skip:       int64(query.Skip),
 		LimitCount: int32(query.Limit),
@@ -50,7 +50,7 @@ func (s *ProjectService) GetProjectsList(ctx context.Context, query GetProjectsL
 }
 
 func (s *ProjectService) DeleteProject(ctx context.Context, id domain.ProjectID) error {
-	return s.ProjectRepository.DeleteProject(ctx, id)
+	return s.projectRepository.DeleteProject(ctx, id)
 }
 
 func (s *ProjectService) UpdateProject(
@@ -74,5 +74,5 @@ func (s *ProjectService) UpdateProject(
 		Description: command.Description,
 	}
 
-	return s.ProjectRepository.UpdateProject(ctx, params)
+	return s.projectRepository.UpdateProject(ctx, params)
 }

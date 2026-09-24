@@ -9,7 +9,6 @@ import (
 var ErrCommentTextRequired = errors.New("comment text is required")
 
 type CommentID int64
-type IssueID int64
 
 type Comment struct {
 	ID        CommentID

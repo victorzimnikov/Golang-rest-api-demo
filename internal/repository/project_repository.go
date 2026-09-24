@@ -6,14 +6,8 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/database/db"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
-)
-
-const (
-	pgUniqueViolationCode                      = "23505"
-	pgProjectNameUniqueViolationConstraintName = "project_name_unique_idx"
 )
 
 type UpdateProjectParams struct {
@@ -32,13 +26,10 @@ func NewProjectRepository(queries *db.Queries) *ProjectRepository {
 	}
 }
 
-func (r *ProjectRepository) SaveProject(ctx context.Context, data db.CreateProjectParams) (*domain.Project, error) {
-	row, err := r.queries.CreateProject(ctx, db.CreateProjectParams{
-		Name:        data.Name,
-		Description: data.Description,
-	})
+func (r *ProjectRepository) SaveProject(ctx context.Context, params db.CreateProjectParams) (*domain.Project, error) {
+	row, err := r.queries.CreateProject(ctx, params)
 
-	if checkIsNotUniqueName(err) {
+	if checkIsNotUniqueName(err, pgProjectNameUniqueViolationConstraintName) {
 		return nil, domain.ErrProjectNameAlreadyExists
 	}
 
@@ -124,7 +115,7 @@ func (r *ProjectRepository) UpdateProject(
 		return nil, domain.ErrProjectNotFound
 	}
 
-	if checkIsNotUniqueName(err) {
+	if checkIsNotUniqueName(err, pgProjectNameUniqueViolationConstraintName) {
 		return nil, domain.ErrProjectNameAlreadyExists
 	}
 
@@ -139,10 +130,4 @@ func (r *ProjectRepository) UpdateProject(
 		CreatedAt:   response.CreatedAt,
 		UpdatedAt:   response.UpdatedAt,
 	}, nil
-}
-
-func checkIsNotUniqueName(err error) bool {
-	var pgError *pgconn.PgError
-
-	return errors.As(err, &pgError) && pgError.Code == pgUniqueViolationCode && pgError.ConstraintName == pgProjectNameUniqueViolationConstraintName
 }

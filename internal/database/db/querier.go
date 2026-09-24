@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	CountProjects(ctx context.Context, q_ string) (int64, error)
+	CreateIssue(ctx context.Context, arg CreateIssueParams) (CreateIssueRow, error)
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
 	DeleteProject(ctx context.Context, id int64) (int64, error)
 	GetProject(ctx context.Context, id int64) (Project, error)
