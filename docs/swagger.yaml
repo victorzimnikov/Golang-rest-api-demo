@@ -2,6 +2,24 @@ basePath: /api/v1
 consumes:
 - application/json
 definitions:
+  CreateIssueRequest:
+    properties:
+      description:
+        type: string
+      dueDate:
+        type: string
+      priority:
+        $ref: '#/definitions/IssuePriority'
+      status:
+        $ref: '#/definitions/IssueStatus'
+      title:
+        type: string
+    type: object
+  CreateIssueResponse:
+    properties:
+      data:
+        $ref: '#/definitions/Issue'
+    type: object
   CreateProjectRequest:
     properties:
       description:
@@ -13,6 +31,15 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/Project'
+    type: object
+  GetProjectIssuesListResponse:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/ListProjectIssue'
+        type: array
+      paginator:
+        $ref: '#/definitions/Paginator'
     type: object
   GetProjectResponse:
     properties:
@@ -28,6 +55,47 @@ definitions:
       paginator:
         $ref: '#/definitions/Paginator'
     type: object
+  Issue:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      dueDate:
+        type: string
+      id:
+        type: integer
+      priority:
+        $ref: '#/definitions/IssuePriority'
+      project:
+        $ref: '#/definitions/ProjectShort'
+      status:
+        $ref: '#/definitions/IssueStatus'
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  IssuePriority:
+    enum:
+    - low
+    - medium
+    - high
+    type: string
+    x-enum-varnames:
+    - IssueLowPriority
+    - IssueMediumPriority
+    - IssueHighPriority
+  IssueStatus:
+    enum:
+    - open
+    - in_progress
+    - done
+    type: string
+    x-enum-varnames:
+    - IssueOpenStatus
+    - IssueInProgressStatus
+    - IssueDoneStatus
   ListProject:
     properties:
       description:
@@ -35,6 +103,17 @@ definitions:
       id:
         type: integer
       name:
+        type: string
+    type: object
+  ListProjectIssue:
+    properties:
+      id:
+        type: integer
+      priority:
+        $ref: '#/definitions/IssuePriority'
+      status:
+        $ref: '#/definitions/IssueStatus'
+      title:
         type: string
     type: object
   Paginator:
@@ -59,6 +138,13 @@ definitions:
       name:
         type: string
       updatedAt:
+        type: string
+    type: object
+  ProjectShort:
+    properties:
+      id:
+        type: integer
+      name:
         type: string
     type: object
   UpdateProjectRequest:
@@ -190,6 +276,83 @@ paths:
       summary: Create project
       tags:
       - Projects
+  /projects/{projectId}/issues:
+    get:
+      description: Returns a project issues list.
+      parameters:
+      - description: Project ID
+        in: path
+        name: projectId
+        required: true
+        type: integer
+      - default: 0
+        description: Number of projects to skip
+        in: query
+        minimum: 0
+        name: skip
+        type: integer
+      - default: 10
+        description: Maximum number of projects
+        in: query
+        maximum: 50
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Issue status
+        enum:
+        - open
+        - in_progress
+        - done
+        in: query
+        name: status
+        type: string
+      - description: Issue priority
+        enum:
+        - low
+        - medium
+        - high
+        in: query
+        name: priority
+        type: string
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetProjectIssuesListResponse'
+      summary: Get project issues list
+      tags:
+      - Issues
+    post:
+      description: Create a project issue.
+      parameters:
+      - description: Project ID
+        in: path
+        minimum: 1
+        name: projectId
+        required: true
+        type: integer
+      - description: Issue data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/CreateIssueRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/CreateIssueResponse'
+      summary: Create project issue
+      tags:
+      - Issues
 produces:
 - application/json
 swagger: "2.0"

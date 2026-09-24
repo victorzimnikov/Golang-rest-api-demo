@@ -15,8 +15,8 @@ type UpdateProjectCommand struct {
 }
 
 type GetProjectsListCommand struct {
-	Skip  int
-	Limit int
+	Skip  int64
+	Limit int32
 	Q     string
 }
 
@@ -41,11 +41,11 @@ func (s *ProjectService) GetProjectByID(ctx context.Context, id domain.ProjectID
 	return s.projectRepository.GetProjectByID(ctx, id)
 }
 
-func (s *ProjectService) GetProjectsList(ctx context.Context, query GetProjectsListCommand) (int64, []domain.Project, error) {
-	return s.projectRepository.GetProjectsList(ctx, db.GetProjectsListParams{
-		Q:          query.Q,
-		Skip:       int64(query.Skip),
-		LimitCount: int32(query.Limit),
+func (s *ProjectService) GetProjectsList(ctx context.Context, command GetProjectsListCommand) (int64, []domain.ProjectListItem, error) {
+	return s.projectRepository.GetProjectsList(ctx, repository.GetProjectsListParams{
+		Q:          command.Q,
+		Skip:       command.Skip,
+		LimitCount: command.Limit,
 	})
 }
 

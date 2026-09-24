@@ -17,6 +17,15 @@ type CreateIssueCommand struct {
 	DueDate     *time.Time
 }
 
+type GetProjectIssuesListCommand struct {
+	Q         string
+	Skip      int64
+	Limit     int32
+	ProjectID domain.ProjectID
+	Status    domain.IssueStatus
+	Priority  domain.IssuePriority
+}
+
 type IssueService struct {
 	issueRepository *repository.IssueRepository
 }
@@ -44,8 +53,15 @@ func (s *IssueService) GetIssue(ctx context.Context) error {
 	return s.issueRepository.GetIssue(ctx)
 }
 
-func (s *IssueService) GetIssuesList(ctx context.Context) error {
-	return s.issueRepository.GetIssuesList(ctx)
+func (s *IssueService) GetProjectIssuesList(ctx context.Context, command GetProjectIssuesListCommand) (int64, []domain.ProjectIssueListItem, error) {
+	return s.issueRepository.GetProjectIssuesList(ctx, repository.GetProjectIssuesListParams{
+		Q:          command.Q,
+		Skip:       command.Skip,
+		LimitCount: command.Limit,
+		ProjectID:  command.ProjectID,
+		Status:     command.Status,
+		Priority:   command.Priority,
+	})
 }
 
 func (s *IssueService) DeleteIssue(ctx context.Context) error {

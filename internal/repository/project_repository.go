@@ -16,6 +16,12 @@ type UpdateProjectParams struct {
 	Description *string
 }
 
+type GetProjectsListParams struct {
+	Skip       int64
+	LimitCount int32
+	Q          string
+}
+
 type ProjectRepository struct {
 	queries *db.Queries
 }
@@ -65,21 +71,25 @@ func (r *ProjectRepository) GetProjectByID(ctx context.Context, id domain.Projec
 	}, nil
 }
 
-func (r *ProjectRepository) GetProjectsList(ctx context.Context, params db.GetProjectsListParams) (int64, []domain.Project, error) {
+func (r *ProjectRepository) GetProjectsList(ctx context.Context, params GetProjectsListParams) (int64, []domain.ProjectListItem, error) {
 	total, err := r.queries.CountProjects(ctx, params.Q)
 	if err != nil {
 		return 0, nil, fmt.Errorf("count projects: %w", err)
 	}
 
-	listRaw, err := r.queries.GetProjectsList(ctx, params)
+	listRaw, err := r.queries.GetProjectsList(ctx, db.GetProjectsListParams{
+		Q:          params.Q,
+		Skip:       params.Skip,
+		LimitCount: params.LimitCount,
+	})
 	if err != nil {
 		return 0, nil, fmt.Errorf("get projects list: %w", err)
 	}
 
-	list := make([]domain.Project, len(listRaw))
+	list := make([]domain.ProjectListItem, len(listRaw))
 
 	for idx, item := range listRaw {
-		list[idx] = domain.Project{
+		list[idx] = domain.ProjectListItem{
 			ID:          domain.ProjectID(item.ID),
 			Name:        item.Name,
 			Description: item.Description,

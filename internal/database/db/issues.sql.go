@@ -12,6 +12,45 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countProjectIssues = `-- name: CountProjectIssues :one
+SELECT COUNT(*)
+FROM issues
+WHERE
+  project_id = $1
+  AND (
+    $2::text = ''
+    OR title ILIKE '%' || $2::text || '%'
+    OR description ILIKE '%' || $2::text || '%'
+  )
+  AND (
+    $3::text = ''
+    OR status = $3::text
+  )
+  AND (
+    $4::text = ''
+    OR priority = $4::text
+  )
+`
+
+type CountProjectIssuesParams struct {
+	ProjectID int64
+	Q         string
+	Status    string
+	Priority  string
+}
+
+func (q *Queries) CountProjectIssues(ctx context.Context, arg CountProjectIssuesParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countProjectIssues,
+		arg.ProjectID,
+		arg.Q,
+		arg.Status,
+		arg.Priority,
+	)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createIssue = `-- name: CreateIssue :one
 WITH inserted AS (
     INSERT INTO issues (
@@ -105,4 +144,79 @@ func (q *Queries) CreateIssue(ctx context.Context, arg CreateIssueParams) (Creat
 		&i.ProjectName,
 	)
 	return i, err
+}
+
+const getProjectIssuesList = `-- name: GetProjectIssuesList :many
+SELECT
+  id,
+  title,
+  status,
+  priority
+FROM issues
+WHERE
+  project_id = $1
+  AND (
+    $2::text = ''
+    OR title ILIKE '%' || $2::text || '%'
+    OR description ILIKE '%' || $2::text || '%'
+  )
+  AND (
+    $3::text = ''
+    OR status = $3::text
+  )
+  AND (
+    $4::text = ''
+    OR priority = $4::text
+  )
+ORDER BY created_at DESC, id DESC
+LIMIT $6
+OFFSET $5::bigint
+`
+
+type GetProjectIssuesListParams struct {
+	ProjectID  int64
+	Q          string
+	Status     string
+	Priority   string
+	Skip       int64
+	LimitCount int32
+}
+
+type GetProjectIssuesListRow struct {
+	ID       int64
+	Title    string
+	Status   string
+	Priority string
+}
+
+func (q *Queries) GetProjectIssuesList(ctx context.Context, arg GetProjectIssuesListParams) ([]GetProjectIssuesListRow, error) {
+	rows, err := q.db.Query(ctx, getProjectIssuesList,
+		arg.ProjectID,
+		arg.Q,
+		arg.Status,
+		arg.Priority,
+		arg.Skip,
+		arg.LimitCount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetProjectIssuesListRow{}
+	for rows.Next() {
+		var i GetProjectIssuesListRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Status,
+			&i.Priority,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

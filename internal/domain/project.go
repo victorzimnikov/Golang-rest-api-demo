@@ -31,6 +31,12 @@ type ProjectShort struct {
 	Name string
 }
 
+type ProjectListItem struct {
+	ID          ProjectID
+	Name        string
+	Description string
+}
+
 func NewProject(name string, description string) (*Project, error) {
 	normalizedName, err := NormalizeProjectName(name)
 	if err != nil {

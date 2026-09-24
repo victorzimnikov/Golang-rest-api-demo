@@ -26,7 +26,7 @@ func SetupV1Routes(api fiber.Router, services *service.Services) {
 	router.Post("/issues/:issueId/comments", issueHandler.CreateIssueComment)
 	router.Get("/issues/:issueId/comments", issueHandler.GetIssueComments)
 	router.Post("/projects/:projectId/issues", issueHandler.CreateProjectIssue)
-	router.Get("/projects/:projectId/issues", issueHandler.GetProjectIssues)
+	router.Get("/projects/:projectId/issues", issueHandler.GetProjectIssuesList)
 
 	// Comments
 	commentsHandlers := NewCommentsHandler(services.CommentsService)

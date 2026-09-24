@@ -28,13 +28,7 @@ func NewProjectHandler(projectService *service.ProjectService) *ProjectHandler {
 //	@Success		200		{object}	GetProjectsListResponse
 //	@Router			/projects [get]
 func (h *ProjectHandler) GetProjectsList(ctx fiber.Ctx) error {
-	var request GetProjectsListRequest
-
-	if err := ctx.Bind().Query(&request); err != nil {
-		return fiber.NewErrorf(fiber.ErrBadRequest.Code, "invalid query parameters: %w", err)
-	}
-
-	query, err := request.toQuery()
+	query, err := getRequestQuery[service.GetProjectsListCommand, GetProjectsListRequest](ctx)
 	if err != nil {
 		return err
 	}

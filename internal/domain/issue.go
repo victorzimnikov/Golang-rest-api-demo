@@ -48,6 +48,13 @@ type Issue struct {
 	Project     ProjectShort
 }
 
+type ProjectIssueListItem struct {
+	ID       IssueID
+	Title    string
+	Status   IssueStatus
+	Priority IssuePriority
+}
+
 func NewIssue(
 	projectID ProjectID,
 	title string,

@@ -4,7 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofiber/fiber/v3"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/service"
 )
@@ -55,24 +54,10 @@ type GetProjectsListRequest struct {
 	Q string `query:"q"`
 }
 
-func (r *GetProjectsListRequest) toQuery() (service.GetProjectsListCommand, error) {
-	skip := 0
-	limit := 10
-
-	if r.Skip != nil {
-		skip = *r.Skip
-	}
-
-	if r.Limit != nil {
-		limit = *r.Limit
-	}
-
-	if skip < 0 {
-		return service.GetProjectsListCommand{}, fiber.NewError(fiber.ErrBadRequest.Code, "skip must be positive")
-	}
-
-	if limit < 1 || limit > 50 {
-		return service.GetProjectsListCommand{}, fiber.NewError(fiber.ErrBadRequest.Code, "limit must be between 1 and 50")
+func (r GetProjectsListRequest) toQuery() (service.GetProjectsListCommand, error) {
+	skip, limit, err := normalizeSkipLimit(r.Skip, r.Limit)
+	if err != nil {
+		return service.GetProjectsListCommand{}, err
 	}
 
 	return service.GetProjectsListCommand{

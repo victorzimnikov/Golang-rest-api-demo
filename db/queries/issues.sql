@@ -44,3 +44,48 @@ SELECT
   p.name        AS project_name
 FROM inserted i
 JOIN projects p ON p.id = i.project_id;
+
+-- name: GetProjectIssuesList :many
+SELECT
+  id,
+  title,
+  status,
+  priority
+FROM issues
+WHERE
+  project_id = sqlc.arg(project_id)
+  AND (
+    sqlc.arg(q)::text = ''
+    OR title ILIKE '%' || sqlc.arg(q)::text || '%'
+    OR description ILIKE '%' || sqlc.arg(q)::text || '%'
+  )
+  AND (
+    sqlc.arg(status)::text = ''
+    OR status = sqlc.arg(status)::text
+  )
+  AND (
+    sqlc.arg(priority)::text = ''
+    OR priority = sqlc.arg(priority)::text
+  )
+ORDER BY created_at DESC, id DESC
+LIMIT sqlc.arg(limit_count)
+OFFSET sqlc.arg(skip)::bigint;
+
+-- name: CountProjectIssues :one
+SELECT COUNT(*)
+FROM issues
+WHERE
+  project_id = sqlc.arg(project_id)
+  AND (
+    sqlc.arg(q)::text = ''
+    OR title ILIKE '%' || sqlc.arg(q)::text || '%'
+    OR description ILIKE '%' || sqlc.arg(q)::text || '%'
+  )
+  AND (
+    sqlc.arg(status)::text = ''
+    OR status = sqlc.arg(status)::text
+  )
+  AND (
+    sqlc.arg(priority)::text = ''
+    OR priority = sqlc.arg(priority)::text
+  );

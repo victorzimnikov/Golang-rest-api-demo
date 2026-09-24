@@ -8,8 +8,8 @@ import (
 )
 
 type SkipLimit struct {
-	Skip  *int `query:"skip"`
-	Limit *int `query:"limit"`
+	Skip  *int64 `query:"skip"`
+	Limit *int32 `query:"limit"`
 }
 
 func getProjectIDParam(ctx fiber.Ctx) (domain.ProjectID, error) {
@@ -36,4 +36,44 @@ func getRequestBody[T any](ctx fiber.Ctx) (*T, error) {
 	}
 
 	return &request, nil
+}
+
+type queryRequest[Q any] interface {
+	toQuery() (Q, error)
+}
+
+func getRequestQuery[Q any, T queryRequest[Q]](ctx fiber.Ctx) (Q, error) {
+	var (
+		request T
+		zero    Q
+	)
+
+	if err := ctx.Bind().Query(&request); err != nil {
+		return zero, fiber.NewErrorf(fiber.ErrBadRequest.Code, "invalid query parameters: %w", err)
+	}
+
+	return request.toQuery()
+}
+
+func normalizeSkipLimit(pSkip *int64, pLimit *int32) (int64, int32, error) {
+	var skip int64 = 0
+	var limit int32 = 10
+
+	if pSkip != nil {
+		skip = *pSkip
+	}
+
+	if pLimit != nil {
+		limit = *pLimit
+	}
+
+	if skip < 0 {
+		return 0, 0, fiber.NewError(fiber.ErrBadRequest.Code, "skip must be positive")
+	}
+
+	if limit < 1 || limit > 50 {
+		return 0, 0, fiber.NewError(fiber.ErrBadRequest.Code, "limit must be between 1 and 50")
+	}
+
+	return skip, limit, nil
 }

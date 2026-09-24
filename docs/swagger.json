@@ -178,9 +178,148 @@
                     }
                 }
             }
+        },
+        "/projects/{projectId}/issues": {
+            "get": {
+                "description": "Returns a project issues list.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Issues"
+                ],
+                "summary": "Get project issues list",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Number of projects to skip",
+                        "name": "skip",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 50,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Maximum number of projects",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "open",
+                            "in_progress",
+                            "done"
+                        ],
+                        "type": "string",
+                        "description": "Issue status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "low",
+                            "medium",
+                            "high"
+                        ],
+                        "type": "string",
+                        "description": "Issue priority",
+                        "name": "priority",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetProjectIssuesListResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a project issue.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Issues"
+                ],
+                "summary": "Create project issue",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Project ID",
+                        "name": "projectId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Issue data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateIssueRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/CreateIssueResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "CreateIssueRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "dueDate": {
+                    "type": "string"
+                },
+                "priority": {
+                    "$ref": "#/definitions/IssuePriority"
+                },
+                "status": {
+                    "$ref": "#/definitions/IssueStatus"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "CreateIssueResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/Issue"
+                }
+            }
+        },
         "CreateProjectRequest": {
             "type": "object",
             "properties": {
@@ -197,6 +336,20 @@
             "properties": {
                 "data": {
                     "$ref": "#/definitions/Project"
+                }
+            }
+        },
+        "GetProjectIssuesListResponse": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ListProjectIssue"
+                    }
+                },
+                "paginator": {
+                    "$ref": "#/definitions/Paginator"
                 }
             }
         },
@@ -222,6 +375,64 @@
                 }
             }
         },
+        "Issue": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "dueDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "priority": {
+                    "$ref": "#/definitions/IssuePriority"
+                },
+                "project": {
+                    "$ref": "#/definitions/ProjectShort"
+                },
+                "status": {
+                    "$ref": "#/definitions/IssueStatus"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "IssuePriority": {
+            "type": "string",
+            "enum": [
+                "low",
+                "medium",
+                "high"
+            ],
+            "x-enum-varnames": [
+                "IssueLowPriority",
+                "IssueMediumPriority",
+                "IssueHighPriority"
+            ]
+        },
+        "IssueStatus": {
+            "type": "string",
+            "enum": [
+                "open",
+                "in_progress",
+                "done"
+            ],
+            "x-enum-varnames": [
+                "IssueOpenStatus",
+                "IssueInProgressStatus",
+                "IssueDoneStatus"
+            ]
+        },
         "ListProject": {
             "type": "object",
             "properties": {
@@ -232,6 +443,23 @@
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "ListProjectIssue": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "priority": {
+                    "$ref": "#/definitions/IssuePriority"
+                },
+                "status": {
+                    "$ref": "#/definitions/IssueStatus"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -269,6 +497,17 @@
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "ProjectShort": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }

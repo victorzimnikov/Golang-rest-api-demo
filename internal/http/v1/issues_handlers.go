@@ -41,6 +41,16 @@ func (h *IssueHandler) GetIssueComments(ctx fiber.Ctx) error {
 	return ctx.SendStatus(501)
 }
 
+// CreateProjectIssue create a project issue.
+//
+//	@Summary		Create project issue
+//	@Description	Create a project issue.
+//	@Tags			Issues
+//	@Produce		json
+//	@Param projectId path int true "Project ID" minimum(1)
+//	@Param			request	body		CreateIssueRequest	true	"Issue data"
+//	@Success		201		{object}	CreateIssueResponse
+//	@Router			/projects/{projectId}/issues [POST]
 func (h *IssueHandler) CreateProjectIssue(ctx fiber.Ctx) error {
 	projectID, err := getProjectIDParam(ctx)
 	if err != nil {
@@ -82,7 +92,58 @@ func (h *IssueHandler) CreateProjectIssue(ctx fiber.Ctx) error {
 	})
 }
 
-func (h *IssueHandler) GetProjectIssues(ctx fiber.Ctx) error {
-	// GetProjectIssues
-	return ctx.SendStatus(501)
+// GetProjectIssuesList returns a project issues list.
+//
+//	@Summary			Get project issues list
+//	@Description	Returns a project issues list.
+//	@Tags					Issues
+//	@Produce			json
+//	@Param				projectId	path			int			true	"Project ID"
+//	@Param				skip			query			int			false	"Number of projects to skip"	default(0)	minimum(0)
+//	@Param				limit			query			int			false	"Maximum number of projects"	default(10)	minimum(1)	maximum(50)
+//	@Param				status		query			string	false	"Issue status" enums(open, in_progress, done)
+//	@Param				priority	query			string	false	"Issue priority" enums(low, medium, high)
+//	@Param				q					query			string	false	"Search query"
+//	@Success			200				{object}	GetProjectIssuesListResponse
+//	@Router				/projects/{projectId}/issues [get]
+func (h *IssueHandler) GetProjectIssuesList(ctx fiber.Ctx) error {
+	projectID, err := getProjectIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	query, err := getRequestQuery[service.GetProjectIssuesListCommand, GetProjectIssuesListRequest](ctx)
+	if err != nil {
+		return err
+	}
+
+	total, listIssues, err := h.issueService.GetProjectIssuesList(ctx.Context(), service.GetProjectIssuesListCommand{
+		Q:         query.Q,
+		Skip:      query.Skip,
+		Limit:     query.Limit,
+		ProjectID: projectID,
+		Status:    query.Status,
+		Priority:  query.Priority,
+	})
+	if err != nil {
+		return err
+	}
+
+	list := make([]ProjectIssueListItemResponse, len(listIssues))
+
+	for idx, item := range listIssues {
+		list[idx] = ProjectIssueListItemResponse(item)
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(GetProjectIssuesListResponse{
+		List: list,
+		Paginator: Paginator{
+			Skip:  query.Skip,
+			Limit: query.Limit,
+			Size:  len(listIssues),
+			Total: total,
+		},
+	})
 }

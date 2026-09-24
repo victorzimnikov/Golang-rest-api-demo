@@ -1,9 +1,11 @@
 package v1
 
 import (
+	"strings"
 	"time"
 
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
+	"github.com/victorzimnikov/Golang-rest-api-demo/internal/service"
 )
 
 type CreateIssueRequest struct {
@@ -32,3 +34,41 @@ type CreateIssueDataResponse struct {
 } //	@name	Issue
 
 type CreateIssueResponse = SuccessResponse[CreateIssueDataResponse] //	@name	CreateIssueResponse
+
+type GetProjectIssuesListRequest struct {
+	SkipLimit
+
+	Q        string               `query:"q"`
+	Status   domain.IssueStatus   `query:"status"`
+	Priority domain.IssuePriority `query:"priority"`
+}
+
+func (r GetProjectIssuesListRequest) toQuery() (service.GetProjectIssuesListCommand, error) {
+	skip, limit, err := normalizeSkipLimit(r.Skip, r.Limit)
+	if err != nil {
+		return service.GetProjectIssuesListCommand{}, err
+	}
+	if r.Status != "" && !domain.ValidateIssueStatus(r.Status) {
+		return service.GetProjectIssuesListCommand{}, domain.ErrInvalidIssueStatus
+	}
+	if r.Priority != "" && !domain.ValidateIssuePriority(r.Priority) {
+		return service.GetProjectIssuesListCommand{}, domain.ErrInvalidIssuePriority
+	}
+
+	return service.GetProjectIssuesListCommand{
+		Skip:     skip,
+		Limit:    limit,
+		Q:        strings.TrimSpace(r.Q),
+		Status:   r.Status,
+		Priority: r.Priority,
+	}, nil
+}
+
+type ProjectIssueListItemResponse struct {
+	ID       domain.IssueID       `json:"id"`
+	Title    string               `json:"title"`
+	Status   domain.IssueStatus   `json:"status"`
+	Priority domain.IssuePriority `json:"priority"`
+} //	@name	ListProjectIssue
+
+type GetProjectIssuesListResponse = SuccessListResponse[ProjectIssueListItemResponse] //	@name	GetProjectIssuesListResponse

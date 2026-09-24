@@ -10,8 +10,8 @@ type SuccessListResponse[T any] struct {
 }
 
 type Paginator struct {
-	Skip  int   `json:"skip"`
-	Limit int   `json:"limit"`
+	Skip  int64 `json:"skip"`
+	Limit int32 `json:"limit"`
 	Size  int   `json:"size"`
 	Total int64 `json:"total"`
 }
