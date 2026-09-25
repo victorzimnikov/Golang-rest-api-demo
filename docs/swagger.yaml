@@ -152,6 +152,24 @@ definitions:
       name:
         type: string
     type: object
+  UpdateIssueRequest:
+    properties:
+      description:
+        type: string
+      dueDate:
+        type: string
+      priority:
+        $ref: '#/definitions/IssuePriority'
+      status:
+        $ref: '#/definitions/IssueStatus'
+      title:
+        type: string
+    type: object
+  UpdateIssueResponse:
+    properties:
+      data:
+        $ref: '#/definitions/Issue'
+    type: object
   UpdateProjectRequest:
     properties:
       description:
@@ -205,6 +223,30 @@ paths:
           schema:
             $ref: '#/definitions/GetIssueResponse'
       summary: Get issue
+      tags:
+      - Issues
+    patch:
+      description: Update a issue.
+      parameters:
+      - description: Issue ID
+        in: path
+        name: issueId
+        required: true
+        type: integer
+      - description: Issue data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateIssueRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UpdateIssueResponse'
+      summary: Update issue
       tags:
       - Issues
   /projects:

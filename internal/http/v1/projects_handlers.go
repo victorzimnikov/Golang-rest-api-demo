@@ -138,9 +138,9 @@ func (h *ProjectHandler) GetProject(ctx fiber.Ctx) error {
 //	@Description	Update a project.
 //	@Tags			    Projects
 //	@Produce		  json
-//	@Param        projectId path int true "Project ID"
-//	@Param			  request	body		UpdateProjectRequest	true	"Project data"
-//	@Success		  200		{object}	UpdateProjectResponse
+//	@Param        projectId 						path int true "Project ID"
+//	@Param			  request								body		UpdateProjectRequest	true	"Project data"
+//	@Success		  200										{object}	UpdateProjectResponse
 //	@Router			  /projects/{projectId} [PATCH]
 func (h *ProjectHandler) UpdateProject(ctx fiber.Ctx) error {
 	projectID, err := getProjectIDParam(ctx)

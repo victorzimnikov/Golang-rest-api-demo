@@ -67,6 +67,42 @@
                         "description": "Issue deleted"
                     }
                 }
+            },
+            "patch": {
+                "description": "Update a issue.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Issues"
+                ],
+                "summary": "Update issue",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Issue ID",
+                        "name": "issueId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Issue data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UpdateIssueRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateIssueResponse"
+                        }
+                    }
+                }
             }
         },
         "/projects": {
@@ -572,6 +608,34 @@
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "UpdateIssueRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "dueDate": {
+                    "type": "string"
+                },
+                "priority": {
+                    "$ref": "#/definitions/IssuePriority"
+                },
+                "status": {
+                    "$ref": "#/definitions/IssueStatus"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "UpdateIssueResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/Issue"
                 }
             }
         },

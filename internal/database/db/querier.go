@@ -19,6 +19,7 @@ type Querier interface {
 	GetProject(ctx context.Context, id int64) (Project, error)
 	GetProjectIssuesList(ctx context.Context, arg GetProjectIssuesListParams) ([]GetProjectIssuesListRow, error)
 	GetProjectsList(ctx context.Context, arg GetProjectsListParams) ([]GetProjectsListRow, error)
+	UpdateIssue(ctx context.Context, arg UpdateIssueParams) (UpdateIssueRow, error)
 	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)
 }
 

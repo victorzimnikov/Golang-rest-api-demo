@@ -53,36 +53,36 @@ func (q *Queries) CountProjectIssues(ctx context.Context, arg CountProjectIssues
 
 const createIssue = `-- name: CreateIssue :one
 WITH inserted AS (
-    INSERT INTO issues (
-      project_id,
-      title,
-      description,
-      status,
-      priority,
-      due_date
-    )
-    SELECT
-      $1,
-      $2,
-      $3,
-      $4,
-      $5,
-      $6
-    WHERE EXISTS (
-      SELECT 1
-      FROM projects
-      WHERE id = $1
-    )
-    RETURNING
-      id,
-      project_id,
-      title,
-      description,
-      status,
-      priority,
-      due_date,
-      created_at,
-      updated_at
+  INSERT INTO issues (
+    project_id,
+    title,
+    description,
+    status,
+    priority,
+    due_date
+  )
+  SELECT
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6
+  WHERE EXISTS (
+    SELECT 1
+    FROM projects
+    WHERE id = $1
+  )
+  RETURNING
+    id,
+    project_id,
+    title,
+    description,
+    status,
+    priority,
+    due_date,
+    created_at,
+    updated_at
 )
 SELECT
   i.id,
@@ -280,4 +280,81 @@ func (q *Queries) GetProjectIssuesList(ctx context.Context, arg GetProjectIssues
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateIssue = `-- name: UpdateIssue :one
+UPDATE issues AS i
+SET
+  title = COALESCE($1, i.title),
+  description = COALESCE($2, i.description),
+  status = COALESCE($3, i.status),
+  priority = COALESCE($4, i.priority),
+  due_date = CASE
+    WHEN $5::boolean
+      THEN $6::date
+    ELSE i.due_date
+  END,
+  updated_at = NOW()
+FROM projects AS p
+WHERE i.id = $7 AND p.id = i.project_id
+RETURNING
+  i.id,
+  i.title,
+  i.description,
+  i.status,
+  i.priority,
+  i.due_date,
+  i.created_at,
+  i.updated_at,
+  p.id          AS project_id,
+  p.name        AS project_name
+`
+
+type UpdateIssueParams struct {
+	Title       pgtype.Text
+	Description pgtype.Text
+	Status      pgtype.Text
+	Priority    pgtype.Text
+	DueDateSet  bool
+	DueDate     pgtype.Date
+	ID          int64
+}
+
+type UpdateIssueRow struct {
+	ID          int64
+	Title       string
+	Description string
+	Status      string
+	Priority    string
+	DueDate     pgtype.Date
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	ProjectID   int64
+	ProjectName string
+}
+
+func (q *Queries) UpdateIssue(ctx context.Context, arg UpdateIssueParams) (UpdateIssueRow, error) {
+	row := q.db.QueryRow(ctx, updateIssue,
+		arg.Title,
+		arg.Description,
+		arg.Status,
+		arg.Priority,
+		arg.DueDateSet,
+		arg.DueDate,
+		arg.ID,
+	)
+	var i UpdateIssueRow
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Status,
+		&i.Priority,
+		&i.DueDate,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ProjectID,
+		&i.ProjectName,
+	)
+	return i, err
 }

@@ -17,6 +17,16 @@ type CreateIssueCommand struct {
 	DueDate     *time.Time
 }
 
+type UpdateIssueCommand struct {
+	IssueID     domain.IssueID
+	Title       *string
+	Description *string
+	Status      *domain.IssueStatus
+	Priority    *domain.IssuePriority
+	DueDate     *time.Time
+	DueDateSet  bool
+}
+
 type GetProjectIssuesListCommand struct {
 	Q         string
 	Skip      int64
@@ -68,6 +78,6 @@ func (s *IssueService) DeleteIssue(ctx context.Context, id domain.IssueID) error
 	return s.issueRepository.DeleteIssue(ctx, id)
 }
 
-func (s *IssueService) UpdateIssue(ctx context.Context) error {
-	return s.issueRepository.UpdateIssue(ctx)
+func (s *IssueService) UpdateIssue(ctx context.Context, command UpdateIssueCommand) (*domain.Issue, error) {
+	return s.issueRepository.UpdateIssue(ctx, repository.UpdateIssueParams(command))
 }

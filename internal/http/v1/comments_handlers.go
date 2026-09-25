@@ -29,3 +29,13 @@ func (h *CommentsHandler) DeleteComment(ctx fiber.Ctx) error {
 	// DeleteComment
 	return ctx.SendStatus(501)
 }
+
+func (h *CommentsHandler) CreateIssueComment(ctx fiber.Ctx) error {
+	// CreateIssueComment
+	return ctx.SendStatus(501)
+}
+
+func (h *CommentsHandler) GetIssueComments(ctx fiber.Ctx) error {
+	// GetIssueComments
+	return ctx.SendStatus(501)
+}

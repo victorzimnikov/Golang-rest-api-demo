@@ -23,8 +23,6 @@ func SetupV1Routes(api fiber.Router, services *service.Services) {
 	router.Get("/issues/:issueId", issueHandler.GetIssue)
 	router.Patch("/issues/:issueId", issueHandler.UpdateIssue)
 	router.Delete("/issues/:issueId", issueHandler.DeleteIssue)
-	router.Post("/issues/:issueId/comments", issueHandler.CreateIssueComment)
-	router.Get("/issues/:issueId/comments", issueHandler.GetIssueComments)
 	router.Post("/projects/:projectId/issues", issueHandler.CreateProjectIssue)
 	router.Get("/projects/:projectId/issues", issueHandler.GetProjectIssuesList)
 
@@ -34,4 +32,6 @@ func SetupV1Routes(api fiber.Router, services *service.Services) {
 	router.Get("/comments/:commentId", commentsHandlers.GetComment)
 	router.Patch("/comments/:commentId", commentsHandlers.UpdateComment)
 	router.Delete("/comments/:commentId", commentsHandlers.DeleteComment)
+	router.Post("/issues/:issueId/comments", commentsHandlers.CreateIssueComment)
+	router.Get("/issues/:issueId/comments", commentsHandlers.GetIssueComments)
 }

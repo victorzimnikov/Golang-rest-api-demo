@@ -53,9 +53,66 @@ func (h *IssueHandler) GetIssue(ctx fiber.Ctx) error {
 	})
 }
 
+// UpdateIssue update a issue.
+//
+//	@Summary		  Update issue
+//	@Description	Update a issue.
+//	@Tags			    Issues
+//	@Produce		  json
+//	@Param        issueId 							path 			int true "Issue ID"
+//	@Param			  request								body			UpdateIssueRequest	true	"Issue data"
+//	@Success		  200										{object}	UpdateIssueResponse
+//	@Router			  /issues/{issueId} [PATCH]
 func (h *IssueHandler) UpdateIssue(ctx fiber.Ctx) error {
-	// UpdateIssue
-	return ctx.SendStatus(501)
+	issueID, err := getIssueIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	body, err := getRequestBody[UpdateIssueRequest](ctx)
+	if err != nil {
+		return err
+	}
+
+	if body.Description == nil &&
+		body.Title == nil &&
+		!body.DueDate.Set &&
+		body.Priority == nil &&
+		body.Status == nil {
+		return fiber.NewError(
+			fiber.StatusBadRequest,
+			"invalid request body",
+		)
+	}
+
+	command, err := body.toCommand(issueID)
+	if err != nil {
+		return err
+	}
+
+	response, responseErr := h.issueService.UpdateIssue(ctx.Context(), command)
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(UpdateIssueResponse{
+		Data: UpdateIssueDataResponse{
+			ID:          response.ID,
+			Title:       response.Title,
+			Description: response.Description,
+			Status:      response.Status,
+			Priority:    response.Priority,
+			DueDate:     response.DueDate,
+			CreatedAt:   response.CreatedAt,
+			UpdatedAt:   response.UpdatedAt,
+			Project: ProjectShort{
+				ID:   response.Project.ID,
+				Name: response.Project.Name,
+			},
+		},
+	})
 }
 
 // DeleteIssue a issue by ID.
@@ -83,16 +140,6 @@ func (h *IssueHandler) DeleteIssue(ctx fiber.Ctx) error {
 	return ctx.JSON(SuccessResponse[*domain.Project]{
 		Data: nil,
 	})
-}
-
-func (h *IssueHandler) CreateIssueComment(ctx fiber.Ctx) error {
-	// CreateIssueComment
-	return ctx.SendStatus(501)
-}
-
-func (h *IssueHandler) GetIssueComments(ctx fiber.Ctx) error {
-	// GetIssueComments
-	return ctx.SendStatus(501)
 }
 
 // CreateProjectIssue create a project issue.

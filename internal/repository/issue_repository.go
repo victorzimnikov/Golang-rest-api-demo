@@ -20,6 +20,16 @@ type CreateIssueParams struct {
 	DueDate     *time.Time
 }
 
+type UpdateIssueParams struct {
+	IssueID     domain.IssueID
+	Title       *string
+	Description *string
+	Status      *domain.IssueStatus
+	Priority    *domain.IssuePriority
+	DueDate     *time.Time
+	DueDateSet  bool
+}
+
 type GetProjectIssuesListParams struct {
 	Q          string
 	Skip       int64
@@ -153,6 +163,40 @@ func (r *IssueRepository) DeleteIssue(ctx context.Context, id domain.IssueID) er
 	return nil
 }
 
-func (r *IssueRepository) UpdateIssue(ctx context.Context) error {
-	return nil
+func (r *IssueRepository) UpdateIssue(ctx context.Context, params UpdateIssueParams) (*domain.Issue, error) {
+	response, err := r.queries.UpdateIssue(ctx, db.UpdateIssueParams{
+		Title:       toNullableText(params.Title),
+		Description: toNullableText(params.Description),
+		Status:      toNullableText((*string)(params.Status)),
+		Priority:    toNullableText((*string)(params.Priority)),
+		DueDate:     toNullableDate(params.DueDate),
+		DueDateSet:  params.DueDateSet,
+		ID:          int64(params.IssueID),
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, domain.ErrIssueNotFound
+	}
+
+	if checkIsNotUniqueName(err, pgIssueTitleUniqueViolationConstraintName) {
+		return nil, domain.ErrIssueTitleAlreadyExists
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("update issue by ID:%d: %w", params.IssueID, err)
+	}
+
+	return &domain.Issue{
+		ID:          domain.IssueID(response.ID),
+		Title:       response.Title,
+		Description: response.Description,
+		Status:      domain.IssueStatus(response.Status),
+		Priority:    domain.IssuePriority(response.Priority),
+		DueDate:     fromNullableDate(response.DueDate),
+		CreatedAt:   response.CreatedAt,
+		UpdatedAt:   response.UpdatedAt,
+		Project: domain.ProjectShort{
+			ID:   domain.ProjectID(response.ProjectID),
+			Name: response.ProjectName,
+		},
+	}, nil
 }
