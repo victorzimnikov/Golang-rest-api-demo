@@ -10,6 +10,31 @@ import (
 	"time"
 )
 
+const countIssueComments = `-- name: CountIssueComments :one
+SELECT COUNT(c.id)
+FROM issues i
+LEFT JOIN comments c
+  ON c.issue_id = i.id
+  AND (
+    $1::text = ''
+    OR c.text ILIKE '%' || $1::text || '%'
+  )
+WHERE i.id = $2
+GROUP BY i.id
+`
+
+type CountIssueCommentsParams struct {
+	Q       string
+	IssueID int64
+}
+
+func (q *Queries) CountIssueComments(ctx context.Context, arg CountIssueCommentsParams) (int64, error) {
+	row := q.db.QueryRow(ctx, countIssueComments, arg.Q, arg.IssueID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createComment = `-- name: CreateComment :one
 WITH inserted AS (
   INSERT INTO comments (
@@ -68,4 +93,57 @@ func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (C
 		&i.IssueTitle,
 	)
 	return i, err
+}
+
+const getIssueCommentsList = `-- name: GetIssueCommentsList :many
+SELECT
+  id,
+  text
+FROM comments
+WHERE
+  issue_id = $1
+  AND (
+    $2::text = ''
+    OR text ILIKE '%' || $2::text || '%'
+  )
+ORDER BY created_at DESC, id DESC
+LIMIT $4
+OFFSET $3::bigint
+`
+
+type GetIssueCommentsListParams struct {
+	IssueID    int64
+	Q          string
+	Skip       int64
+	LimitCount int32
+}
+
+type GetIssueCommentsListRow struct {
+	ID   int64
+	Text string
+}
+
+func (q *Queries) GetIssueCommentsList(ctx context.Context, arg GetIssueCommentsListParams) ([]GetIssueCommentsListRow, error) {
+	rows, err := q.db.Query(ctx, getIssueCommentsList,
+		arg.IssueID,
+		arg.Q,
+		arg.Skip,
+		arg.LimitCount,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetIssueCommentsListRow{}
+	for rows.Next() {
+		var i GetIssueCommentsListRow
+		if err := rows.Scan(&i.ID, &i.Text); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

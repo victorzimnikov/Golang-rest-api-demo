@@ -12,9 +12,10 @@ type CommentsService struct {
 }
 
 type GetIssueCommentsListCommand struct {
-	Skip  int64
-	Limit int32
-	Q     string
+	Skip    int64
+	Limit   int32
+	Q       string
+	IssueID domain.IssueID
 }
 
 func NewCommentsService(commentsRepository *repository.CommentsRepository) *CommentsService {
@@ -25,4 +26,13 @@ func NewCommentsService(commentsRepository *repository.CommentsRepository) *Comm
 
 func (s *CommentsService) CreateComment(ctx context.Context, comment *domain.Comment) (*domain.Comment, error) {
 	return s.commentsRepository.CreateComment(ctx, comment)
+}
+
+func (s *CommentsService) GetIssueCommentsList(ctx context.Context, command GetIssueCommentsListCommand) (int64, []domain.IssueCommentListItem, error) {
+	return s.commentsRepository.GetIssueCommentsList(ctx, repository.GetIssueCommentsListParams{
+		Q:          command.Q,
+		Skip:       command.Skip,
+		LimitCount: command.Limit,
+		IssueID:    command.IssueID,
+	})
 }

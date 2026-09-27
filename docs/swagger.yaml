@@ -55,6 +55,15 @@ definitions:
       data:
         $ref: '#/definitions/Project'
     type: object
+  GetIssueCommentsListResponse:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/ListIssueComment'
+        type: array
+      paginator:
+        $ref: '#/definitions/Paginator'
+    type: object
   GetIssueResponse:
     properties:
       data:
@@ -131,6 +140,13 @@ definitions:
     - IssueOpenStatus
     - IssueInProgressStatus
     - IssueDoneStatus
+  ListIssueComment:
+    properties:
+      id:
+        type: integer
+      text:
+        type: string
+    type: object
   ListProject:
     properties:
       description:
@@ -287,6 +303,41 @@ paths:
       tags:
       - Issues
   /issues/{issueId}/comments:
+    get:
+      description: Returns a issue comments list.
+      parameters:
+      - description: Issue ID
+        in: path
+        name: issueId
+        required: true
+        type: integer
+      - default: 0
+        description: Number of comments to skip
+        in: query
+        minimum: 0
+        name: skip
+        type: integer
+      - default: 10
+        description: Maximum number of comments
+        in: query
+        maximum: 50
+        minimum: 1
+        name: limit
+        type: integer
+      - description: Search query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetIssueCommentsListResponse'
+      summary: Get issue comments list
+      tags:
+      - Comments
     post:
       description: Create a issue comment.
       parameters:

@@ -45,3 +45,10 @@ func (r GetIssueCommentsListRequest) toQuery() (service.GetIssueCommentsListComm
 		Q:     strings.TrimSpace(r.Q),
 	}, nil
 }
+
+type IssueCommentListItemResponse struct {
+	ID   domain.CommentID `json:"id"`
+	Text string           `json:"text"`
+} //	@name	ListIssueComment
+
+type GetIssueCommentsListResponse = SuccessListResponse[IssueCommentListItemResponse] //	@name	GetIssueCommentsListResponse

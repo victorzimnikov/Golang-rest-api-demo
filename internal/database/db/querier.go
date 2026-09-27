@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	CountIssueComments(ctx context.Context, arg CountIssueCommentsParams) (int64, error)
 	CountProjectIssues(ctx context.Context, arg CountProjectIssuesParams) (int64, error)
 	CountProjects(ctx context.Context, q_ string) (int64, error)
 	CreateComment(ctx context.Context, arg CreateCommentParams) (CreateCommentRow, error)
@@ -17,6 +18,7 @@ type Querier interface {
 	DeleteIssue(ctx context.Context, issueID int64) (int64, error)
 	DeleteProject(ctx context.Context, projectID int64) (int64, error)
 	GetIssue(ctx context.Context, issueID int64) (GetIssueRow, error)
+	GetIssueCommentsList(ctx context.Context, arg GetIssueCommentsListParams) ([]GetIssueCommentsListRow, error)
 	GetProject(ctx context.Context, id int64) (Project, error)
 	GetProjectIssuesList(ctx context.Context, arg GetProjectIssuesListParams) ([]GetProjectIssuesListRow, error)
 	GetProjectsList(ctx context.Context, arg GetProjectsListParams) ([]GetProjectsListRow, error)

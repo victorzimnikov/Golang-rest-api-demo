@@ -72,23 +72,25 @@ LIMIT sqlc.arg(limit_count)
 OFFSET sqlc.arg(skip)::bigint;
 
 -- name: CountProjectIssues :one
-SELECT COUNT(*)
-FROM issues
-WHERE
-  project_id = sqlc.arg(project_id)
+SELECT COUNT(i.id)
+FROM projects p
+LEFT JOIN issues i
+  ON i.project_id = p.id
   AND (
     sqlc.arg(q)::text = ''
-    OR title ILIKE '%' || sqlc.arg(q)::text || '%'
-    OR description ILIKE '%' || sqlc.arg(q)::text || '%'
+    OR i.title ILIKE '%' || sqlc.arg(q)::text || '%'
+    OR i.description ILIKE '%' || sqlc.arg(q)::text || '%'
   )
   AND (
     sqlc.arg(status)::text = ''
-    OR status = sqlc.arg(status)::text
+    OR i.status = sqlc.arg(status)::text
   )
   AND (
     sqlc.arg(priority)::text = ''
-    OR priority = sqlc.arg(priority)::text
-  );
+    OR i.priority = sqlc.arg(priority)::text
+  )
+WHERE p.id = sqlc.arg(project_id)
+GROUP BY p.id;
 
 -- name: GetIssue :one
 SELECT

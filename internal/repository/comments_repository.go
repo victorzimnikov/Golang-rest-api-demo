@@ -18,6 +18,7 @@ type GetIssueCommentsListParams struct {
 	Skip       int64
 	LimitCount int32
 	Q          string
+	IssueID    domain.IssueID
 }
 
 func NewCommentsRepository(queries *db.Queries) *CommentsRepository {
@@ -49,4 +50,39 @@ func (r *CommentsRepository) CreateComment(ctx context.Context, comment *domain.
 			Title: row.IssueTitle,
 		},
 	}, nil
+}
+
+func (r *CommentsRepository) GetIssueCommentsList(ctx context.Context, params GetIssueCommentsListParams) (int64, []domain.IssueCommentListItem, error) {
+	total, err := r.queries.CountIssueComments(ctx, db.CountIssueCommentsParams{
+		IssueID: int64(params.IssueID),
+		Q:       params.Q,
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, nil, domain.ErrIssueNotFound
+	}
+
+	if err != nil {
+		return 0, nil, fmt.Errorf("count issue comments: %w", err)
+	}
+
+	listRaw, err := r.queries.GetIssueCommentsList(ctx, db.GetIssueCommentsListParams{
+		IssueID:    int64(params.IssueID),
+		Q:          params.Q,
+		Skip:       params.Skip,
+		LimitCount: params.LimitCount,
+	})
+	if err != nil {
+		return 0, nil, fmt.Errorf("get issue comments list: %w", err)
+	}
+
+	list := make([]domain.IssueCommentListItem, len(listRaw))
+
+	for idx, item := range listRaw {
+		list[idx] = domain.IssueCommentListItem{
+			ID:   domain.CommentID(item.ID),
+			Text: item.Text,
+		}
+	}
+
+	return total, list, nil
 }

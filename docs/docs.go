@@ -113,6 +113,56 @@ const docTemplate = `{
             }
         },
         "/issues/{issueId}/comments": {
+            "get": {
+                "description": "Returns a issue comments list.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Get issue comments list",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Issue ID",
+                        "name": "issueId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Number of comments to skip",
+                        "name": "skip",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 50,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Maximum number of comments",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetIssueCommentsListResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a issue comment.",
                 "produces": [
@@ -512,6 +562,20 @@ const docTemplate = `{
                 }
             }
         },
+        "GetIssueCommentsListResponse": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ListIssueComment"
+                    }
+                },
+                "paginator": {
+                    "$ref": "#/definitions/Paginator"
+                }
+            }
+        },
         "GetIssueResponse": {
             "type": "object",
             "properties": {
@@ -624,6 +688,17 @@ const docTemplate = `{
                 "IssueInProgressStatus",
                 "IssueDoneStatus"
             ]
+        },
+        "ListIssueComment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
         },
         "ListProject": {
             "type": "object",

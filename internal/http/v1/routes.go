@@ -33,5 +33,5 @@ func SetupV1Routes(api fiber.Router, services *service.Services) {
 	router.Patch("/comments/:commentId", commentsHandlers.UpdateComment)
 	router.Delete("/comments/:commentId", commentsHandlers.DeleteComment)
 	router.Post("/issues/:issueId/comments", commentsHandlers.CreateIssueComment)
-	router.Get("/issues/:issueId/comments", commentsHandlers.GetIssueComments)
+	router.Get("/issues/:issueId/comments", commentsHandlers.GetIssueCommentsList)
 }

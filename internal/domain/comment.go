@@ -25,6 +25,11 @@ type Comment struct {
 	UpdatedAt time.Time
 }
 
+type IssueCommentListItem struct {
+	ID   CommentID
+	Text string
+}
+
 func NewComment(issueID IssueID, text string) (*Comment, error) {
 	text, err := NormalizeCommentText(text)
 	if err != nil {

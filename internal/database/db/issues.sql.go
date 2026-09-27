@@ -13,38 +13,40 @@ import (
 )
 
 const countProjectIssues = `-- name: CountProjectIssues :one
-SELECT COUNT(*)
-FROM issues
-WHERE
-  project_id = $1
+SELECT COUNT(i.id)
+FROM projects p
+LEFT JOIN issues i
+  ON i.project_id = p.id
+  AND (
+    $1::text = ''
+    OR i.title ILIKE '%' || $1::text || '%'
+    OR i.description ILIKE '%' || $1::text || '%'
+  )
   AND (
     $2::text = ''
-    OR title ILIKE '%' || $2::text || '%'
-    OR description ILIKE '%' || $2::text || '%'
+    OR i.status = $2::text
   )
   AND (
     $3::text = ''
-    OR status = $3::text
+    OR i.priority = $3::text
   )
-  AND (
-    $4::text = ''
-    OR priority = $4::text
-  )
+WHERE p.id = $4
+GROUP BY p.id
 `
 
 type CountProjectIssuesParams struct {
-	ProjectID int64
 	Q         string
 	Status    string
 	Priority  string
+	ProjectID int64
 }
 
 func (q *Queries) CountProjectIssues(ctx context.Context, arg CountProjectIssuesParams) (int64, error) {
 	row := q.db.QueryRow(ctx, countProjectIssues,
-		arg.ProjectID,
 		arg.Q,
 		arg.Status,
 		arg.Priority,
+		arg.ProjectID,
 	)
 	var count int64
 	err := row.Scan(&count)

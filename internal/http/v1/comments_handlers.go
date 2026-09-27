@@ -84,3 +84,58 @@ func (h *CommentsHandler) GetIssueComments(ctx fiber.Ctx) error {
 	// GetIssueComments
 	return ctx.SendStatus(501)
 }
+
+// GetIssueCommentsList returns a issue comments list.
+//
+//	@Summary			Get issue comments list
+//	@Description	Returns a issue comments list.
+//	@Tags					Comments
+//	@Produce			json
+//	@Param				issueId	path			int			true	"Issue ID"
+//	@Param				skip			query			int			false	"Number of comments to skip"	default(0)	minimum(0)
+//	@Param				limit			query			int			false	"Maximum number of comments"	default(10)	minimum(1)	maximum(50)
+//	@Param				q					query			string	false	"Search query"
+//	@Success			200				{object}	GetIssueCommentsListResponse
+//	@Router				/issues/{issueId}/comments [get]
+func (h *CommentsHandler) GetIssueCommentsList(ctx fiber.Ctx) error {
+	issueID, err := getIssueIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	query, err := getRequestQuery[service.GetIssueCommentsListCommand, GetIssueCommentsListRequest](ctx)
+	if err != nil {
+		return err
+	}
+
+	total, listIssues, err := h.commentsService.GetIssueCommentsList(ctx.Context(), service.GetIssueCommentsListCommand{
+		Q:       query.Q,
+		Skip:    query.Skip,
+		Limit:   query.Limit,
+		IssueID: issueID,
+	})
+	if err != nil {
+		return err
+	}
+
+	list := make([]IssueCommentListItemResponse, len(listIssues))
+
+	for idx, item := range listIssues {
+		list[idx] = IssueCommentListItemResponse{
+			ID:   item.ID,
+			Text: item.Text,
+		}
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(GetIssueCommentsListResponse{
+		List: list,
+		Paginator: Paginator{
+			Skip:  query.Skip,
+			Limit: query.Limit,
+			Size:  len(listIssues),
+			Total: total,
+		},
+	})
+}

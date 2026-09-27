@@ -120,6 +120,10 @@ func (r *IssueRepository) GetProjectIssuesList(ctx context.Context, params GetPr
 		Status:    string(params.Status),
 		Priority:  string(params.Priority),
 	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, nil, domain.ErrProjectNotFound
+	}
+
 	if err != nil {
 		return 0, nil, fmt.Errorf("count project issues: %w", err)
 	}
