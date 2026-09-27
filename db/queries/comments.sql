@@ -73,3 +73,18 @@ DELETE FROM comments
 WHERE id = sqlc.arg(comment_id)
 RETURNING
   id;
+
+-- name: UpdateComment :one
+UPDATE comments AS c
+SET
+  text = COALESCE(sqlc.narg('text'), c.text),
+  updated_at = NOW()
+FROM issues AS i
+WHERE c.id = sqlc.arg('id') AND i.id = c.issue_id
+RETURNING
+  c.id,
+  c.text,
+  c.created_at,
+  c.updated_at,
+  i.id    AS issue_id,
+  i.title AS issue_title;

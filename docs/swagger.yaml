@@ -210,6 +210,16 @@ definitions:
       name:
         type: string
     type: object
+  UpdateCommentRequest:
+    properties:
+      text:
+        type: string
+    type: object
+  UpdateCommentResponse:
+    properties:
+      data:
+        $ref: '#/definitions/Comment'
+    type: object
   UpdateIssueRequest:
     properties:
       description:
@@ -281,6 +291,31 @@ paths:
           schema:
             $ref: '#/definitions/GetCommentResponse'
       summary: Get comment
+      tags:
+      - Comments
+    patch:
+      description: Update a comment.
+      parameters:
+      - description: Comment ID
+        in: path
+        minimum: 1
+        name: commentId
+        required: true
+        type: integer
+      - description: Comment data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UpdateCommentResponse'
+      summary: Update comment
       tags:
       - Comments
   /issues/{issueId}:

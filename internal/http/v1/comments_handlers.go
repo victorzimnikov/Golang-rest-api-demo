@@ -52,9 +52,58 @@ func (h *CommentsHandler) GetComment(ctx fiber.Ctx) error {
 	})
 }
 
+// UpdateComment updates a comment.
+//
+//	@Summary		Update comment
+//	@Description	Update a comment.
+//	@Tags			Comments
+//	@Produce		json
+//	@Param			commentId	path	int					true	"Comment ID"	minimum(1)
+//	@Param			request		body	UpdateCommentRequest	true	"Comment data"
+//	@Success		200			{object}	UpdateCommentResponse
+//	@Router			/comments/{commentId} [patch]
 func (h *CommentsHandler) UpdateComment(ctx fiber.Ctx) error {
-	// UpdateComment
-	return ctx.SendStatus(501)
+	commentID, err := getCommentIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	body, err := getRequestBody[UpdateCommentRequest](ctx)
+	if err != nil {
+		return err
+	}
+
+	if body.Text == nil {
+		return fiber.NewError(
+			fiber.StatusBadRequest,
+			"invalid request body",
+		)
+	}
+
+	command, err := body.toCommand(commentID)
+	if err != nil {
+		return err
+	}
+
+	response, responseErr := h.commentsService.UpdateComment(ctx.Context(), command)
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(UpdateCommentResponse{
+		Data: UpdateCommentDataResponse{
+			ID:        response.ID,
+			Text:      response.Text,
+			CreatedAt: response.CreatedAt,
+			UpdatedAt: response.UpdatedAt,
+			Issue: IssueShort{
+				ID:    response.Issue.ID,
+				Title: response.Issue.Title,
+			},
+		},
+	})
 }
 
 // DeleteComment a comment by ID.

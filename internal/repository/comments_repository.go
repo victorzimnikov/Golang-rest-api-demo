@@ -21,6 +21,11 @@ type GetIssueCommentsListParams struct {
 	IssueID    domain.IssueID
 }
 
+type UpdateCommentParams struct {
+	CommentID domain.CommentID
+	Text      *string
+}
+
 func NewCommentsRepository(queries *db.Queries) *CommentsRepository {
 	return &CommentsRepository{
 		queries: queries,
@@ -120,4 +125,29 @@ func (r *CommentsRepository) DeleteComment(ctx context.Context, id domain.Commen
 	}
 
 	return nil
+}
+
+func (r *CommentsRepository) UpdateComment(ctx context.Context, params UpdateCommentParams) (*domain.Comment, error) {
+	response, err := r.queries.UpdateComment(ctx, db.UpdateCommentParams{
+		Text: toNullableText(params.Text),
+		ID:   int64(params.CommentID),
+	})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, domain.ErrCommentNotFound
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("update comment by ID:%d: %w", params.CommentID, err)
+	}
+
+	return &domain.Comment{
+		ID:        domain.CommentID(response.ID),
+		Text:      response.Text,
+		CreatedAt: response.CreatedAt,
+		UpdatedAt: response.UpdatedAt,
+		Issue: domain.IssueShort{
+			ID:    domain.IssueID(response.IssueID),
+			Title: response.IssueTitle,
+		},
+	}, nil
 }

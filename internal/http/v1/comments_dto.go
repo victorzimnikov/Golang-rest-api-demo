@@ -27,6 +27,38 @@ type CreateCommentDataResponse struct {
 
 type CreateCommentResponse = SuccessResponse[CreateCommentDataResponse] //	@name	CreateCommentResponse
 
+type UpdateCommentRequest struct {
+	Text *string `json:"text"`
+}
+
+type UpdateCommentDataResponse struct {
+	ID        domain.CommentID `json:"id"`
+	Text      string           `json:"text"`
+	CreatedAt time.Time        `json:"createdAt"`
+	UpdatedAt time.Time        `json:"updatedAt"`
+	Issue     IssueShort       `json:"issue"`
+} //	@name	Comment
+
+func (r UpdateCommentRequest) toCommand(commentID domain.CommentID) (service.UpdateCommentCommand, error) {
+	var text *string
+
+	if r.Text != nil {
+		normalizedText, err := domain.NormalizeCommentText(*r.Text)
+		if err != nil {
+			return service.UpdateCommentCommand{}, err
+		}
+
+		text = &normalizedText
+	}
+
+	return service.UpdateCommentCommand{
+		CommentID: commentID,
+		Text:      text,
+	}, nil
+}
+
+type UpdateCommentResponse = SuccessResponse[UpdateCommentDataResponse] //	@name	UpdateCommentResponse
+
 type GetIssueCommentsListRequest struct {
 	SkipLimit
 

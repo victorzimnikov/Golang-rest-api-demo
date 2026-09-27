@@ -18,6 +18,11 @@ type GetIssueCommentsListCommand struct {
 	IssueID domain.IssueID
 }
 
+type UpdateCommentCommand struct {
+	CommentID domain.CommentID
+	Text      *string
+}
+
 func NewCommentsService(commentsRepository *repository.CommentsRepository) *CommentsService {
 	return &CommentsService{
 		commentsRepository: commentsRepository,
@@ -43,4 +48,8 @@ func (s *CommentsService) GetIssueCommentsList(ctx context.Context, command GetI
 
 func (s *CommentsService) DeleteComment(ctx context.Context, id domain.CommentID) error {
 	return s.commentsRepository.DeleteComment(ctx, id)
+}
+
+func (s *CommentsService) UpdateComment(ctx context.Context, command UpdateCommentCommand) (*domain.Comment, error) {
+	return s.commentsRepository.UpdateComment(ctx, repository.UpdateCommentParams(command))
 }

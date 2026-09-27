@@ -8,6 +8,8 @@ package db
 import (
 	"context"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const countIssueComments = `-- name: CountIssueComments :one
@@ -102,8 +104,8 @@ RETURNING
   id
 `
 
-func (q *Queries) DeleteComment(ctx context.Context, issueID int64) (int64, error) {
-	row := q.db.QueryRow(ctx, deleteComment, issueID)
+func (q *Queries) DeleteComment(ctx context.Context, commentID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, deleteComment, commentID)
 	var id int64
 	err := row.Scan(&id)
 	return id, err
@@ -196,4 +198,48 @@ func (q *Queries) GetIssueCommentsList(ctx context.Context, arg GetIssueComments
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateComment = `-- name: UpdateComment :one
+UPDATE comments AS c
+SET
+  text = COALESCE($1, c.text),
+  updated_at = NOW()
+FROM issues AS i
+WHERE c.id = $2 AND i.id = c.issue_id
+RETURNING
+  c.id,
+  c.text,
+  c.created_at,
+  c.updated_at,
+  i.id    AS issue_id,
+  i.title AS issue_title
+`
+
+type UpdateCommentParams struct {
+	Text pgtype.Text
+	ID   int64
+}
+
+type UpdateCommentRow struct {
+	ID         int64
+	Text       string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	IssueID    int64
+	IssueTitle string
+}
+
+func (q *Queries) UpdateComment(ctx context.Context, arg UpdateCommentParams) (UpdateCommentRow, error) {
+	row := q.db.QueryRow(ctx, updateComment, arg.Text, arg.ID)
+	var i UpdateCommentRow
+	err := row.Scan(
+		&i.ID,
+		&i.Text,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IssueID,
+		&i.IssueTitle,
+	)
+	return i, err
 }

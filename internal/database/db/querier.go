@@ -15,7 +15,7 @@ type Querier interface {
 	CreateComment(ctx context.Context, arg CreateCommentParams) (CreateCommentRow, error)
 	CreateIssue(ctx context.Context, arg CreateIssueParams) (CreateIssueRow, error)
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
-	DeleteComment(ctx context.Context, issueID int64) (int64, error)
+	DeleteComment(ctx context.Context, commentID int64) (int64, error)
 	DeleteIssue(ctx context.Context, issueID int64) (int64, error)
 	DeleteProject(ctx context.Context, projectID int64) (int64, error)
 	GetComment(ctx context.Context, commentID int64) (GetCommentRow, error)
@@ -24,6 +24,7 @@ type Querier interface {
 	GetProject(ctx context.Context, id int64) (Project, error)
 	GetProjectIssuesList(ctx context.Context, arg GetProjectIssuesListParams) ([]GetProjectIssuesListRow, error)
 	GetProjectsList(ctx context.Context, arg GetProjectsListParams) ([]GetProjectsListRow, error)
+	UpdateComment(ctx context.Context, arg UpdateCommentParams) (UpdateCommentRow, error)
 	UpdateIssue(ctx context.Context, arg UpdateIssueParams) (UpdateIssueRow, error)
 	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)
 }
