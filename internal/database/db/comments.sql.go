@@ -95,6 +95,20 @@ func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (C
 	return i, err
 }
 
+const deleteComment = `-- name: DeleteComment :one
+DELETE FROM comments
+WHERE id = $1
+RETURNING
+  id
+`
+
+func (q *Queries) DeleteComment(ctx context.Context, issueID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, deleteComment, issueID)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getComment = `-- name: GetComment :one
 SELECT
   c.id,

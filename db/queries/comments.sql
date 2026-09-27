@@ -67,3 +67,9 @@ SELECT
 FROM comments c
 JOIN issues i ON i.id = c.issue_id
 WHERE c.id = sqlc.arg(comment_id);
+
+-- name: DeleteComment :one
+DELETE FROM comments
+WHERE id = sqlc.arg(comment_id)
+RETURNING
+  id;

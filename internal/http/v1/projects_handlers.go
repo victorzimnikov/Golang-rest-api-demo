@@ -200,7 +200,7 @@ func (h *ProjectHandler) DeleteProject(ctx fiber.Ctx) error {
 
 	ctx.Status(fiber.StatusOK)
 
-	return ctx.JSON(SuccessResponse[*domain.Project]{
+	return ctx.JSON(SuccessResponse[any]{
 		Data: nil,
 	})
 }

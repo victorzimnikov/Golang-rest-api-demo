@@ -247,6 +247,23 @@ info:
   version: "1.0"
 paths:
   /comments/{commentId}:
+    delete:
+      description: Delete a comment by its identifier.
+      parameters:
+      - description: Comment ID
+        in: path
+        minimum: 1
+        name: commentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comment deleted
+      summary: Delete comment
+      tags:
+      - Comments
     get:
       description: Returns a comment by its identifier.
       parameters:

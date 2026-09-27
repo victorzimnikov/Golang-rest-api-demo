@@ -40,3 +40,7 @@ func (s *CommentsService) GetIssueCommentsList(ctx context.Context, command GetI
 		IssueID:    command.IssueID,
 	})
 }
+
+func (s *CommentsService) DeleteComment(ctx context.Context, id domain.CommentID) error {
+	return s.commentsRepository.DeleteComment(ctx, id)
+}

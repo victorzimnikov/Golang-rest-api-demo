@@ -57,9 +57,31 @@ func (h *CommentsHandler) UpdateComment(ctx fiber.Ctx) error {
 	return ctx.SendStatus(501)
 }
 
+// DeleteComment a comment by ID.
+//
+//	@Summary			Delete comment
+//	@Description	Delete a comment by its identifier.
+//	@Tags					Comments
+//	@Produce			json
+//	@Param				commentId						path	int	true	"Comment ID"	minimum(1)
+//	@Success			200								"Comment deleted"
+//	@Router				/comments/{commentId} [delete]
 func (h *CommentsHandler) DeleteComment(ctx fiber.Ctx) error {
-	// DeleteComment
-	return ctx.SendStatus(501)
+	commentID, err := getCommentIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	responseErr := h.commentsService.DeleteComment(ctx.Context(), commentID)
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(SuccessResponse[any]{
+		Data: nil,
+	})
 }
 
 // CreateIssueComment create a issue comment.

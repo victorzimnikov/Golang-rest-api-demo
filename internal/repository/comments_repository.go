@@ -108,3 +108,16 @@ func (r *CommentsRepository) GetCommentByID(ctx context.Context, id domain.Comme
 		},
 	}, nil
 }
+
+func (r *CommentsRepository) DeleteComment(ctx context.Context, id domain.CommentID) error {
+	_, err := r.queries.DeleteComment(ctx, int64(id))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.ErrCommentNotFound
+	}
+
+	if err != nil {
+		return fmt.Errorf("delete comment by ID:%d: %w", id, err)
+	}
+
+	return nil
+}
