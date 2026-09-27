@@ -55,3 +55,15 @@ LEFT JOIN comments c
   )
 WHERE i.id = sqlc.arg(issue_id)
 GROUP BY i.id;
+
+-- name: GetComment :one
+SELECT
+  c.id,
+  c.text,
+  c.created_at,
+  c.updated_at,
+  i.id AS issue_id,
+  i.title AS issue_title
+FROM comments c
+JOIN issues i ON i.id = c.issue_id
+WHERE c.id = sqlc.arg(comment_id);

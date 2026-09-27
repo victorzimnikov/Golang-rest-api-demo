@@ -21,6 +21,36 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/comments/{commentId}": {
+            "get": {
+                "description": "Returns a comment by its identifier.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Get comment",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Comment ID",
+                        "name": "commentId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetCommentResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/issues/{issueId}": {
             "get": {
                 "description": "Returns a issue by its identifier.",
@@ -559,6 +589,14 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/Project"
+                }
+            }
+        },
+        "GetCommentResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/Comment"
                 }
             }
         },

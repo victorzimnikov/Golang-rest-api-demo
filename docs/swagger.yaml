@@ -55,6 +55,11 @@ definitions:
       data:
         $ref: '#/definitions/Project'
     type: object
+  GetCommentResponse:
+    properties:
+      data:
+        $ref: '#/definitions/Comment'
+    type: object
   GetIssueCommentsListResponse:
     properties:
       list:
@@ -241,6 +246,26 @@ info:
   title: REST Demo API
   version: "1.0"
 paths:
+  /comments/{commentId}:
+    get:
+      description: Returns a comment by its identifier.
+      parameters:
+      - description: Comment ID
+        in: path
+        minimum: 1
+        name: commentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetCommentResponse'
+      summary: Get comment
+      tags:
+      - Comments
   /issues/{issueId}:
     delete:
       description: Delete a issue by its identifier.

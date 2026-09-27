@@ -38,6 +38,19 @@ func getIssueIDParam(ctx fiber.Ctx) (domain.IssueID, error) {
 	return domain.IssueID(issueID), nil
 }
 
+func getCommentIDParam(ctx fiber.Ctx) (domain.CommentID, error) {
+	commentIDRaw := ctx.Params("commentId")
+	commentID, err := strconv.ParseInt(commentIDRaw, 10, 64)
+	if err != nil || commentID <= 0 {
+		return 0, fiber.NewError(
+			fiber.StatusBadRequest,
+			"invalid comment id",
+		)
+	}
+
+	return domain.CommentID(commentID), nil
+}
+
 func getRequestBody[T any](ctx fiber.Ctx) (*T, error) {
 	var request T
 

@@ -52,3 +52,13 @@ type IssueCommentListItemResponse struct {
 } //	@name	ListIssueComment
 
 type GetIssueCommentsListResponse = SuccessListResponse[IssueCommentListItemResponse] //	@name	GetIssueCommentsListResponse
+
+type GetCommentDataResponse struct {
+	ID        domain.CommentID `json:"id"`
+	Text      string           `json:"text"`
+	CreatedAt time.Time        `json:"createdAt"`
+	UpdatedAt time.Time        `json:"updatedAt"`
+	Issue     IssueShort       `json:"issue"`
+} //	@name	Comment
+
+type GetCommentResponse = SuccessResponse[GetCommentDataResponse] //	@name	GetCommentResponse

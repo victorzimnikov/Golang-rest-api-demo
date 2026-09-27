@@ -17,6 +17,7 @@ type Querier interface {
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
 	DeleteIssue(ctx context.Context, issueID int64) (int64, error)
 	DeleteProject(ctx context.Context, projectID int64) (int64, error)
+	GetComment(ctx context.Context, commentID int64) (GetCommentRow, error)
 	GetIssue(ctx context.Context, issueID int64) (GetIssueRow, error)
 	GetIssueCommentsList(ctx context.Context, arg GetIssueCommentsListParams) ([]GetIssueCommentsListRow, error)
 	GetProject(ctx context.Context, id int64) (Project, error)

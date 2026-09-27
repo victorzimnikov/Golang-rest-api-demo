@@ -16,9 +16,40 @@ func NewCommentsHandler(commentsService *service.CommentsService) *CommentsHandl
 	}
 }
 
+// GetComment returns a comment by ID.
+//
+//	@Summary			Get comment
+//	@Description	Returns a comment by its identifier.
+//	@Tags					Comments
+//	@Produce			json
+//	@Param				commentId						path	int	true	"Comment ID"	minimum(1)
+//	@Success			200								{object}	GetCommentResponse
+//	@Router				/comments/{commentId} [get]
 func (h *CommentsHandler) GetComment(ctx fiber.Ctx) error {
-	// GetComment
-	return ctx.SendStatus(501)
+	commentID, err := getCommentIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	response, responseErr := h.commentsService.GetComment(ctx.Context(), commentID)
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusOK)
+
+	return ctx.JSON(GetCommentResponse{
+		Data: GetCommentDataResponse{
+			ID:        response.ID,
+			Text:      response.Text,
+			CreatedAt: response.CreatedAt,
+			UpdatedAt: response.UpdatedAt,
+			Issue: IssueShort{
+				ID:    response.Issue.ID,
+				Title: response.Issue.Title,
+			},
+		},
+	})
 }
 
 func (h *CommentsHandler) UpdateComment(ctx fiber.Ctx) error {
@@ -78,11 +109,6 @@ func (h *CommentsHandler) CreateIssueComment(ctx fiber.Ctx) error {
 			},
 		},
 	)
-}
-
-func (h *CommentsHandler) GetIssueComments(ctx fiber.Ctx) error {
-	// GetIssueComments
-	return ctx.SendStatus(501)
 }
 
 // GetIssueCommentsList returns a issue comments list.

@@ -95,6 +95,42 @@ func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (C
 	return i, err
 }
 
+const getComment = `-- name: GetComment :one
+SELECT
+  c.id,
+  c.text,
+  c.created_at,
+  c.updated_at,
+  i.id AS issue_id,
+  i.title AS issue_title
+FROM comments c
+JOIN issues i ON i.id = c.issue_id
+WHERE c.id = $1
+`
+
+type GetCommentRow struct {
+	ID         int64
+	Text       string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	IssueID    int64
+	IssueTitle string
+}
+
+func (q *Queries) GetComment(ctx context.Context, commentID int64) (GetCommentRow, error) {
+	row := q.db.QueryRow(ctx, getComment, commentID)
+	var i GetCommentRow
+	err := row.Scan(
+		&i.ID,
+		&i.Text,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.IssueID,
+		&i.IssueTitle,
+	)
+	return i, err
+}
+
 const getIssueCommentsList = `-- name: GetIssueCommentsList :many
 SELECT
   id,

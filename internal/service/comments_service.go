@@ -24,6 +24,10 @@ func NewCommentsService(commentsRepository *repository.CommentsRepository) *Comm
 	}
 }
 
+func (s *CommentsService) GetComment(ctx context.Context, id domain.CommentID) (*domain.Comment, error) {
+	return s.commentsRepository.GetCommentByID(ctx, id)
+}
+
 func (s *CommentsService) CreateComment(ctx context.Context, comment *domain.Comment) (*domain.Comment, error) {
 	return s.commentsRepository.CreateComment(ctx, comment)
 }

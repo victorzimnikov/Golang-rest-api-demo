@@ -86,3 +86,25 @@ func (r *CommentsRepository) GetIssueCommentsList(ctx context.Context, params Ge
 
 	return total, list, nil
 }
+
+func (r *CommentsRepository) GetCommentByID(ctx context.Context, id domain.CommentID) (*domain.Comment, error) {
+	row, err := r.queries.GetComment(ctx, int64(id))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, domain.ErrCommentNotFound
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.Comment{
+		ID:        domain.CommentID(row.ID),
+		Text:      row.Text,
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
+		Issue: domain.IssueShort{
+			ID:    domain.IssueID(row.IssueID),
+			Title: row.IssueTitle,
+		},
+	}, nil
+}
