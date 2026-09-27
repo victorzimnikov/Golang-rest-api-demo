@@ -48,6 +48,11 @@ type Issue struct {
 	Project     ProjectShort
 }
 
+type IssueShort struct {
+	ID    IssueID
+	Title string
+}
+
 type ProjectIssueListItem struct {
 	ID       IssueID
 	Title    string

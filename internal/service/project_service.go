@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"github.com/victorzimnikov/Golang-rest-api-demo/internal/database/db"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/repository"
 )
@@ -31,10 +30,7 @@ func NewProjectService(projectRepository *repository.ProjectRepository) *Project
 }
 
 func (s *ProjectService) CreateProject(ctx context.Context, project *domain.Project) (*domain.Project, error) {
-	return s.projectRepository.SaveProject(ctx, db.CreateProjectParams{
-		Name:        project.Name,
-		Description: project.Description,
-	})
+	return s.projectRepository.SaveProject(ctx, project)
 }
 
 func (s *ProjectService) GetProjectByID(ctx context.Context, id domain.ProjectID) (*domain.Project, error) {

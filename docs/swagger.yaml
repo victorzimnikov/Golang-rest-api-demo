@@ -2,6 +2,29 @@ basePath: /api/v1
 consumes:
 - application/json
 definitions:
+  Comment:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      issue:
+        $ref: '#/definitions/IssueShort'
+      text:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  CreateCommentRequest:
+    properties:
+      text:
+        type: string
+    type: object
+  CreateCommentResponse:
+    properties:
+      data:
+        $ref: '#/definitions/Comment'
+    type: object
   CreateIssueRequest:
     properties:
       description:
@@ -91,6 +114,13 @@ definitions:
     - IssueLowPriority
     - IssueMediumPriority
     - IssueHighPriority
+  IssueShort:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
   IssueStatus:
     enum:
     - open
@@ -119,6 +149,13 @@ definitions:
       status:
         $ref: '#/definitions/IssueStatus'
       title:
+        type: string
+    type: object
+  OptionalDate:
+    properties:
+      set:
+        type: boolean
+      value:
         type: string
     type: object
   Paginator:
@@ -157,7 +194,7 @@ definitions:
       description:
         type: string
       dueDate:
-        type: string
+        $ref: '#/definitions/OptionalDate'
       priority:
         $ref: '#/definitions/IssuePriority'
       status:
@@ -249,6 +286,32 @@ paths:
       summary: Update issue
       tags:
       - Issues
+  /issues/{issueId}/comments:
+    post:
+      description: Create a issue comment.
+      parameters:
+      - description: Issue ID
+        in: path
+        minimum: 1
+        name: issueId
+        required: true
+        type: integer
+      - description: Issue data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/CreateCommentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/CreateCommentResponse'
+      summary: Create issue comment
+      tags:
+      - Comments
   /projects:
     get:
       description: Returns a projects list.

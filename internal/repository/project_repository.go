@@ -32,8 +32,11 @@ func NewProjectRepository(queries *db.Queries) *ProjectRepository {
 	}
 }
 
-func (r *ProjectRepository) SaveProject(ctx context.Context, params db.CreateProjectParams) (*domain.Project, error) {
-	row, err := r.queries.CreateProject(ctx, params)
+func (r *ProjectRepository) SaveProject(ctx context.Context, project *domain.Project) (*domain.Project, error) {
+	row, err := r.queries.CreateProject(ctx, db.CreateProjectParams{
+		Name:        project.Name,
+		Description: project.Description,
+	})
 
 	if checkIsNotUniqueName(err, pgProjectNameUniqueViolationConstraintName) {
 		return nil, domain.ErrProjectNameAlreadyExists

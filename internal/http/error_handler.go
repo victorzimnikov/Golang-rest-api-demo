@@ -28,6 +28,7 @@ func ErrorHandler(ctx fiber.Ctx, err error) error {
 		errors.Is(err, domain.ErrIssueTitleRequired),
 		errors.Is(err, domain.ErrInvalidIssueStatus),
 		errors.Is(err, domain.ErrInvalidIssuePriority),
+		errors.Is(err, domain.ErrCommentTextTooLong),
 		errors.Is(err, domain.ErrIssueTitleTooLong):
 		return ctx.Status(fiber.StatusBadRequest).JSON(errorResponse{
 			Error: err.Error(),
@@ -40,6 +41,7 @@ func ErrorHandler(ctx fiber.Ctx, err error) error {
 		})
 
 	case errors.Is(err, domain.ErrIssueNotFound),
+		errors.Is(err, domain.ErrCommentNotFound),
 		errors.Is(err, domain.ErrProjectNotFound):
 		return ctx.Status(fiber.StatusNotFound).JSON(errorResponse{
 			Error: err.Error(),

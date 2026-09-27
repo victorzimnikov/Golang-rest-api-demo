@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	CountProjectIssues(ctx context.Context, arg CountProjectIssuesParams) (int64, error)
 	CountProjects(ctx context.Context, q_ string) (int64, error)
+	CreateComment(ctx context.Context, arg CreateCommentParams) (CreateCommentRow, error)
 	CreateIssue(ctx context.Context, arg CreateIssueParams) (CreateIssueRow, error)
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
 	DeleteIssue(ctx context.Context, issueID int64) (int64, error)

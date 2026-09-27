@@ -112,6 +112,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/issues/{issueId}/comments": {
+            "post": {
+                "description": "Create a issue comment.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Create issue comment",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Issue ID",
+                        "name": "issueId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Issue data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateCommentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/CreateCommentResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/projects": {
             "get": {
                 "description": "Returns a projects list.",
@@ -390,6 +429,42 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "Comment": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "issue": {
+                    "$ref": "#/definitions/IssueShort"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "CreateCommentRequest": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "CreateCommentResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/Comment"
+                }
+            }
+        },
         "CreateIssueRequest": {
             "type": "object",
             "properties": {
@@ -526,6 +601,17 @@ const docTemplate = `{
                 "IssueHighPriority"
             ]
         },
+        "IssueShort": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
         "IssueStatus": {
             "type": "string",
             "enum": [
@@ -566,6 +652,17 @@ const docTemplate = `{
                     "$ref": "#/definitions/IssueStatus"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "OptionalDate": {
+            "type": "object",
+            "properties": {
+                "set": {
+                    "type": "boolean"
+                },
+                "value": {
                     "type": "string"
                 }
             }
@@ -625,7 +722,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "dueDate": {
-                    "type": "string"
+                    "$ref": "#/definitions/OptionalDate"
                 },
                 "priority": {
                     "$ref": "#/definitions/IssuePriority"

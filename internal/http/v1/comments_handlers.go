@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gofiber/fiber/v3"
+	"github.com/victorzimnikov/Golang-rest-api-demo/internal/domain"
 	"github.com/victorzimnikov/Golang-rest-api-demo/internal/service"
 )
 
@@ -30,9 +31,53 @@ func (h *CommentsHandler) DeleteComment(ctx fiber.Ctx) error {
 	return ctx.SendStatus(501)
 }
 
+// CreateIssueComment create a issue comment.
+//
+//	@Summary		Create issue comment
+//	@Description	Create a issue comment.
+//	@Tags			Comments
+//	@Produce		json
+//	@Param issueId path int true "Issue ID" minimum(1)
+//	@Param			request	body		CreateCommentRequest	true	"Issue data"
+//	@Success		201		{object}	CreateCommentResponse
+//	@Router			/issues/{issueId}/comments [POST]
 func (h *CommentsHandler) CreateIssueComment(ctx fiber.Ctx) error {
-	// CreateIssueComment
-	return ctx.SendStatus(501)
+	issueID, err := getIssueIDParam(ctx)
+	if err != nil {
+		return err
+	}
+
+	body, err := getRequestBody[CreateCommentRequest](ctx)
+	if err != nil {
+		return err
+	}
+
+	comment, err := domain.NewComment(issueID, body.Text)
+	if err != nil {
+		return err
+	}
+
+	response, responseErr := h.commentsService.CreateComment(ctx.Context(), comment)
+	if responseErr != nil {
+		return responseErr
+	}
+
+	ctx.Status(fiber.StatusCreated)
+
+	return ctx.JSON(
+		CreateCommentResponse{
+			Data: CreateCommentDataResponse{
+				ID:        response.ID,
+				Text:      response.Text,
+				CreatedAt: response.CreatedAt,
+				UpdatedAt: response.UpdatedAt,
+				Issue: IssueShort{
+					ID:    response.Issue.ID,
+					Title: response.Issue.Title,
+				},
+			},
+		},
+	)
 }
 
 func (h *CommentsHandler) GetIssueComments(ctx fiber.Ctx) error {
